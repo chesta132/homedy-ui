@@ -1,0 +1,36 @@
+@layer base {
+  * {
+    border-color: var(--color-border-sub);
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--color-color-base);
+    color: var(--color-fg);
+    font-family: var(--font-mono);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-card);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-sub);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-hover);
+  }
+
+  ::selection {
+    background-color: var(--color-fg);
+    color: var(--color-color-base);
+  }
+}
