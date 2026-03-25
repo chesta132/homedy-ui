@@ -54,3 +54,35 @@ export const record = <T extends Record<string, any>, Z>(data: T, recordType: Z)
   });
   return buildedData;
 };
+
+type DeepMerge<T, U> = Omit<T, keyof U> &
+  Omit<U, keyof T> & {
+    [K in keyof T & keyof U]: T[K] extends Record<string, unknown> ? (U[K] extends Record<string, unknown> ? DeepMerge<T[K], U[K]> : U[K]) : U[K];
+  };
+
+type DeepMergeAll<T extends readonly unknown[]> = T extends readonly [infer First]
+  ? First
+  : T extends readonly [infer First, infer Second, ...infer Rest]
+    ? DeepMergeAll<[DeepMerge<First, Second>, ...Rest]>
+    : never;
+
+export function deepMerge<T extends object, U extends object>(a: T, b: U): DeepMerge<T, U> {
+  const result = { ...a } as Record<string, unknown>;
+
+  for (const key in b) {
+    const bVal = b[key as keyof U];
+    const aVal = result[key];
+
+    if (aVal && typeof aVal === "object" && !Array.isArray(aVal) && bVal && typeof bVal === "object" && !Array.isArray(bVal)) {
+      result[key] = deepMerge(aVal as object, bVal as object);
+    } else {
+      result[key] = bVal;
+    }
+  }
+
+  return result as DeepMerge<T, U>;
+}
+
+export function deepMergeAll<T extends readonly object[]>(...objects: T): DeepMergeAll<T> {
+  return objects.reduce((acc, obj) => deepMerge(acc, obj)) as DeepMergeAll<T>;
+}
