@@ -1,4 +1,4 @@
-import type { ErrorResponse, Pagination, Response } from "@/models/response";
+import type { ErrorResponse, Pagination, Response } from "@/types/server";
 import type { AxiosError, AxiosResponse } from "axios";
 
 export class ServerError {

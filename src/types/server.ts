@@ -90,3 +90,5 @@ export type CodeClientError =
   | "GONE";
 
 export type CodeError = CodeNotFoundError | CodeServerError | CodeClientError;
+
+export type StateErrorServer = Omit<ErrorResponse, "field">;

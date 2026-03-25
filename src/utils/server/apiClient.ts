@@ -3,7 +3,7 @@ import { pick } from "../manipulate/object";
 import type { EndpointsType } from "./endpoints";
 import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 import { ServerError, ServerSuccess } from "./serverResponse";
-import type { Response } from "@/models/response";
+import type { Response } from "@/types/server";
 import { camelizeKeys, decamelizeKeys } from "humps";
 
 type OptionalField<K extends string, V> = [undefined] extends [V] ? Partial<Record<K, V>> : Record<K, V>;
