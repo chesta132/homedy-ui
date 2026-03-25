@@ -2,7 +2,7 @@ import z from "zod";
 import { BaseValidator } from "./base";
 
 export abstract class UserValidator {
-  static readonly regex = {
+  static readonly REGEX = {
     /**
      * length = 3-30
      * allowed char = a-z A-Z 0-9 _ .
@@ -17,32 +17,13 @@ export abstract class UserValidator {
     password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,32}$/,
   };
 
-  static readonly user = z
-    .object({
-      username: z.string().regex(this.regex.username, "Invalid username"),
-      email: z.email("Invalid email format"),
-      status: z.enum(["active", "pending"], "Invalid status"),
-    })
-    .and(BaseValidator.baseRecyclable);
-
-  static readonly signIn = z.object({
-    identifier: z.string("Invalid identifier"), // username or email
-    password: z.string().regex(this.regex.password, "Invalid password"),
-    rememberMe: z.boolean(),
-  });
-
-  static readonly signUp = z.object({
-    password: z.string().regex(this.regex.password, "Invalid password"),
-    username: z.string().regex(this.regex.username, "Invalid username"),
-    email: z.email("Invalid email format"),
-  });
-
-  static readonly signUpApproval = z.object({
-    identifier: z.string("Invalid identifier"), // token
-    action: z.enum(["approve", "deny"]),
-  });
-
-  static readonly signUpApprovalStatus = z.object({
-    email: z.email("Invalid email format"),
-  });
+  static readonly MODEL = {
+    user: z
+      .object({
+        username: z.string().regex(this.REGEX.username, "Invalid username"),
+        email: z.email("Invalid email format"),
+        status: z.enum(["active", "pending"], "Invalid status"),
+      })
+      .and(BaseValidator.baseRecyclable),
+  };
 }

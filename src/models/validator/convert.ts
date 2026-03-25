@@ -1,7 +1,7 @@
 import z from "zod";
 
 export abstract class ConvertValidator {
-  static readonly pairs = {
+  static readonly PAIRS = {
     html: ["md"],
     md: ["html"],
     pdf: ["docx", "pptx"],
@@ -11,7 +11,7 @@ export abstract class ConvertValidator {
     csv: ["xlsx"],
   };
 
-  static readonly fileLimits = {
+  static readonly FILE_LIMITS = {
     /** 2MB */
     html: 2 << 20,
     /** 2MB */
@@ -28,7 +28,7 @@ export abstract class ConvertValidator {
     pdf: 15 << 20,
   };
 
-  private static isValidPair = (from: string, to: string): boolean => this.pairs[from as keyof typeof this.pairs]?.includes(to) ?? false;
+  private static isValidPair = (from: string, to: string): boolean => this.PAIRS[from as keyof typeof this.PAIRS]?.includes(to) ?? false;
 
   private static fileWithConvertTo = (file: File) => {
     const ext = file.name.split(".").pop() ?? "";
@@ -42,28 +42,27 @@ export abstract class ConvertValidator {
         ctx.addIssue({ code: "custom", message: `${ext} -> ${val} is not a valid pair` });
       }
 
-      const limit = this.fileLimits[ext as keyof typeof this.fileLimits];
+      const limit = this.FILE_LIMITS[ext as keyof typeof this.FILE_LIMITS];
       if (limit && file.size > limit) {
         ctx.addIssue({ code: "custom", message: `File size exceeds limit of ${limit} bytes` });
       }
     });
   };
 
-  static readonly convertOne = (file: File) =>
-    z
+  static readonly BODY = {
+    convertOne: z
       .object({
         file: z.instanceof(File),
         convertTo: z.string().min(1),
       })
       .superRefine((val, ctx) => {
-        const result = this.fileWithConvertTo(file).safeParse(val.convertTo);
+        const result = this.fileWithConvertTo(val.file).safeParse(val.convertTo);
         if (!result.success) {
           result.error.issues.forEach((issue) => ctx.addIssue({ ...issue, path: ["convertTo"] }));
         }
-      });
+      }),
 
-  static readonly convertMultiple = () =>
-    z
+    convertMultiple: z
       .object({
         files: z.array(z.instanceof(File)).min(1),
         convertTo: z.array(z.string().min(1)),
@@ -80,5 +79,6 @@ export abstract class ConvertValidator {
             result.error.issues.forEach((issue) => ctx.addIssue({ ...issue, path: ["convertTo", i] }));
           }
         });
-      });
+      }),
+  };
 }
