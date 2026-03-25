@@ -1,4 +1,4 @@
-import z, { ZodOptional, ZodType, type ZodObject } from "zod";
+import z, { ZodOptional, ZodType, type ZodObject, type infer as ZodInfer } from "zod";
 import { AuthEndpoints } from "./auth";
 import { deepMergeAll } from "@/utils/manipulate/object";
 
@@ -18,7 +18,8 @@ export type EndpointPath = {
 export type EndpointPaths = Partial<Record<Method, Record<string, EndpointPath>>>;
 
 export abstract class Endpoints {
-  static readonly PATHS = deepMergeAll(AuthEndpoints.PATHS) satisfies EndpointPaths;
+  private static readonly DEFAULT_PATH = { DELETE: {}, GET: {}, PATCH: {}, POST: {}, PUT: {} } as EndpointPaths;
+  static readonly PATHS = deepMergeAll(this.DEFAULT_PATH, AuthEndpoints.PATHS) satisfies EndpointPaths;
 
   static generatePath<B extends Body, R extends Response, Q extends Query, P extends Param>(
     response: R,
@@ -27,3 +28,18 @@ export abstract class Endpoints {
     return { body, response, query, param };
   }
 }
+
+export type InferEndpointPath<T extends EndpointPath> = {
+  response: ZodInfer<T["response"]>;
+  body: ZodInfer<T["body"]>;
+  query: ZodInfer<T["query"]>;
+  param: ZodInfer<T["param"]>;
+};
+
+export type InferEndpointPaths<T extends EndpointPaths> = {
+  [M in keyof T]: {
+    [P in keyof T[M]]: T[M][P] extends EndpointPath ? InferEndpointPath<T[M][P]> : never;
+  };
+};
+
+export type EndpointsType = InferEndpointPaths<typeof Endpoints.PATHS>;
