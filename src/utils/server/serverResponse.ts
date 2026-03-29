@@ -24,8 +24,8 @@ export class ServerError {
     return this.data.message;
   }
 
-  getField() {
-    return this.data.field;
+  getFields() {
+    return this.data.fields;
   }
 
   getDetails() {

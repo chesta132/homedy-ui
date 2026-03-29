@@ -28,9 +28,9 @@ export const handleFormError = <T extends Record<string, string>>(
   setError: React.Dispatch<React.SetStateAction<StateErrorServer | null>>,
 ) => {
   if (err instanceof ServerError) {
-    const field = err.getField();
-    if (field) {
-      setFormError((prev) => ({ ...prev, ...field }));
+    const fields = err.getFields();
+    if (fields) {
+      setFormError((prev) => ({ ...prev, ...fields }));
       return;
     }
   }
