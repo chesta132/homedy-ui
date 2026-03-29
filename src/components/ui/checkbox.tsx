@@ -1,47 +1,33 @@
+import * as React from "react";
+import { Checkbox as CheckboxPrimitive } from "radix-ui";
+
 import { cn } from "@/lib/utils";
-import { kebab } from "@/utils/manipulate/string";
-import { Check } from "lucide-react";
+import { CheckIcon } from "lucide-react";
+import { Label } from "./label";
 
-export type CheckboxProps = {
-  label?: string;
-  size?: number;
-  onCheckedChange?: (checked: boolean) => void;
-  classBox?: string;
-} & Omit<React.ComponentProps<"input">, "size" | "type">;
+export type CheckboxProps = React.ComponentProps<typeof CheckboxPrimitive.Root> & { label?: string };
 
-export const Checkbox = ({ id, className, label, size, onChange, onCheckedChange, classBox, ...rest }: CheckboxProps) => {
+function Checkbox({ className, label, ...props }: CheckboxProps) {
   return (
-    <div className={cn("relative inline-flex items-center gap-2", className)}>
-      <div className="relative size-4">
-        <input
-          type="checkbox"
-          id={id || kebab(label?.toLowerCase() ?? "unknown")}
-          className={cn(
-            "appearance-none cursor-pointer peer relative border-input dark:bg-input/30 checked:bg-primary checked:text-primary-foreground dark:checked:bg-primary checked:border-primary focus-visible:border-ring focus-visible:ring-ring/50 size-full shrink-0 rounded-lg border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-            classBox
-          )}
-          onChange={(e) => {
-            onCheckedChange?.(e.target.checked);
-            onChange?.(e);
-          }}
-          {...rest}
-        />
-        <span
-          aria-hidden="true"
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-foreground opacity-0 peer-checked:opacity-100 transition-all pointer-events-none"
+    <div className="flex gap-2">
+      <CheckboxPrimitive.Root
+        data-slot="checkbox"
+        className={cn(
+          "cursor-pointer peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors outline-none group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
+          className,
+        )}
+        {...props}
+      >
+        <CheckboxPrimitive.Indicator
+          data-slot="checkbox-indicator"
+          className="grid place-content-center text-current transition-none [&>svg]:size-3.5"
         >
-          <Check size={size || 12} />
-        </span>
-      </div>
-      {label && (
-        <label
-          htmlFor={id || kebab(label?.toLowerCase() ?? "unknown")}
-          style={{ fontSize: size ? `${size}px` : undefined }}
-          className="cursor-pointer select-none"
-        >
-          {label}
-        </label>
-      )}
+          <CheckIcon />
+        </CheckboxPrimitive.Indicator>
+      </CheckboxPrimitive.Root>
+      {label && <Label htmlFor={props.id}>{label}</Label>}
     </div>
   );
-};
+}
+
+export { Checkbox };
