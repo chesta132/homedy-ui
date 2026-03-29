@@ -111,7 +111,7 @@ const SubmittedUI = ({ data }: { data: Submitted }) => (
     </div>
     <h1 className="text-2xl font-semibold text-fg">Check your inbox</h1>
     <p className="mt-2 text-sm text-[#666666]">Your request has been submitted. The owner will receive an approval email shortly.</p>
-    <div className="mt-4 rounded-lg border border-[#1e1e1e] bg-card px-4 py-3">
+    <div className="mt-4 rounded-lg border border-border bg-card px-4 py-3">
       <p className="text-xs text-dim">Registered as</p>
       <p className="mt-0.5 text-sm font-medium text-fg">{data.email}</p>
     </div>

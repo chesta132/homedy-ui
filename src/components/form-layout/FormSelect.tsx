@@ -1,4 +1,4 @@
-import { DropdownSelect } from "../dropdown/DropdownSelect";
+import { DropdownSelect } from "../ui/dropdown-select";
 import { useFormLayout } from "./FormLayout";
 import type { Select as SelectPrimitive } from "radix-ui";
 
