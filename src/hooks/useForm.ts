@@ -2,6 +2,14 @@ import { record } from "@/utils/manipulate/object";
 import { useState } from "react";
 import { type ZodObject, type infer as ZodInfer, type ZodError, z } from "zod";
 
+export type FormGroup<T> = {
+  readonly form: [T, React.Dispatch<React.SetStateAction<T>>];
+  readonly error: [Record<keyof T, string>, React.Dispatch<React.SetStateAction<Record<keyof T, string>>>];
+  readonly validateForm: () => boolean;
+  readonly validateField: (field: Partial<T>) => boolean;
+  readonly resetForm: () => void;
+};
+
 export const useForm = <T extends ZodObject>(schema: T, defaultVal?: Partial<ZodInfer<T>>) => {
   const [form, setForm] = useState({ ...schema.shape, ...defaultVal });
   const [error, setError] = useState(record(schema.shape, ""));

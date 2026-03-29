@@ -138,6 +138,19 @@ export const camel = (str: string) => {
 };
 
 /**
+ * Give hypens to original string.
+ *
+ * @param string - Original string.
+ * @returns The string with hypens.
+ *
+ * @example
+ * kebab("newUser") // new-user
+ */
+export const kebab = (str: string) => {
+  return spacing(str).replaceAll(" ", "-");
+};
+
+/**
  * Inserts line breaks into a string so that each line fits within the specified pixel width.
  *
  * @param text - The original string to wrap.
