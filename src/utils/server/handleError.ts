@@ -1,6 +1,6 @@
 import type { StateErrorServer } from "@/types/server";
 import { ServerError } from "./serverResponse";
-
+import { capital } from "../manipulate/string";
 
 /**
  * Maps any caught error to the global error state.
@@ -30,7 +30,8 @@ export const handleFormError = <T extends Record<string, string>>(
   if (err instanceof ServerError) {
     const fields = err.getFields();
     if (fields) {
-      setFormError((prev) => ({ ...prev, ...fields }));
+      const formattedFields = Object.entries(fields).reduce((acc, [field, value]) => ({ ...acc, [field]: capital(value) }), {});
+      setFormError((prev) => ({ ...prev, ...formattedFields }));
       return;
     }
   }
