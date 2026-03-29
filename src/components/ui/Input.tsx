@@ -52,7 +52,7 @@ export const Input = ({
           className={cn("text-sm text-subtle leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", classLabel)}
         >
           {label}
-          {optional && <span className="ml-1 text-xs text-muted-foreground">(optional)</span>}
+          {optional && <span className="ml-1 text-xs text-dim">(optional)</span>}
         </label>
       )}
 
