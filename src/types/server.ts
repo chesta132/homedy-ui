@@ -9,7 +9,7 @@ export interface ErrorResponse {
   /** Extra details for debugging */
   details?: string;
   /** Optional field reference (useful for forms) */
-  field?: Record<string, string>;
+  fields?: Record<string, string>;
 }
 
 export interface Pagination {
