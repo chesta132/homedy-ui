@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Calendar, type CalendarProps } from "@/components/calendar";
+import { Calendar, type CalendarProps } from "@/components/ui/calendar";
 import { Popover as PopoverPrimitive } from "radix-ui";
 import React, { useState } from "react";
 import { Button, type ButtonProps } from "./button";

@@ -1,25 +1,28 @@
 import { record } from "@/utils/manipulate/object";
 import { useState } from "react";
-import { type ZodObject, type infer as ZodInfer, type ZodError, z } from "zod";
+import { type ZodObject, type infer as ZodInfer, type ZodError, z, ZodType } from "zod";
 
-export type FormGroup<T> = {
-  readonly form: [T, React.Dispatch<React.SetStateAction<T>>];
-  readonly error: [Record<keyof T, string>, React.Dispatch<React.SetStateAction<Record<keyof T, string>>>];
+export type FormGroup<T extends ZodObject> = {
+  readonly form: [ZodInfer<T>, React.Dispatch<React.SetStateAction<ZodInfer<T>>>];
+  readonly error: [Record<keyof ZodInfer<T>, string>, React.Dispatch<React.SetStateAction<Record<keyof ZodInfer<T>, string>>>];
   readonly validateForm: () => boolean;
-  readonly validateField: (field: Partial<T>) => boolean;
+  /** @deprecated use `updateField` instead */
+  readonly validateField: (field: Partial<ZodInfer<T>>) => boolean;
   readonly resetForm: () => void;
+  readonly updateField: <T extends keyof ZodInfer<T>>(field: T, value: ZodInfer<T>[T]) => void;
 };
 
-export const useForm = <T extends ZodObject>(schema: T, defaultVal?: Partial<ZodInfer<T>>) => {
-  const [form, setForm] = useState({ ...schema.shape, ...defaultVal });
-  const [error, setError] = useState(record(schema.shape, ""));
+export const useForm = <T extends ZodObject>(defaultVal: ZodInfer<T>, validator: T) => {
+  type Inferred = ZodInfer<T>;
+  const [form, setForm] = useState(defaultVal);
+  const [error, setError] = useState(record(defaultVal, ""));
 
   const formatErrors = (zodError: ZodError) => {
     return Object.fromEntries(Object.entries<string[]>(z.flattenError(zodError).fieldErrors).map(([key, val]) => [key, val?.[0] ?? ""]));
   };
 
   const validateForm = () => {
-    const parsed = schema.safeParse(form);
+    const parsed = validator.safeParse(form);
     if (!parsed.success) {
       setError((prev) => ({ ...prev, ...formatErrors(parsed.error) }));
     } else {
@@ -28,8 +31,8 @@ export const useForm = <T extends ZodObject>(schema: T, defaultVal?: Partial<Zod
     return parsed.success;
   };
 
-  const validateField = (field: Partial<T>) => {
-    const parsed = schema.safeParse(field);
+  const validateField = (field: Partial<ZodInfer<T>>) => {
+    const parsed = validator.safeParse(field);
     setForm((prev) => ({ ...prev, ...field }));
 
     if (!parsed.success) {
@@ -40,9 +43,23 @@ export const useForm = <T extends ZodObject>(schema: T, defaultVal?: Partial<Zod
     return parsed.success;
   };
 
+  const updateField = <T extends keyof Inferred>(field: T, value: Inferred[T]) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    const fieldValidator = (validator.shape as any)[field];
+    if (fieldValidator instanceof ZodType) {
+      const validator = z.object({ [field]: fieldValidator });
+      const parsed = validator.safeParse({ [field]: value });
+      if (!parsed.success) {
+        setError((prev) => ({ ...prev, ...formatErrors(parsed.error) }));
+      } else if (error[field] !== "") {
+        setError((prev) => ({ ...prev, [field]: "" }));
+      }
+    }
+  };
+
   const resetForm = () => {
-    setForm({ ...schema.shape, ...defaultVal });
-    setError(record(schema.shape, ""));
+    setForm(defaultVal);
+    setError(record(defaultVal, ""));
   };
 
   return {
@@ -51,5 +68,6 @@ export const useForm = <T extends ZodObject>(schema: T, defaultVal?: Partial<Zod
     validateForm,
     validateField,
     resetForm,
-  };
+    updateField,
+  } as FormGroup<T>;
 };

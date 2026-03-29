@@ -7,7 +7,7 @@
   body {
     background-color: var(--color-color-base);
     color: var(--color-fg);
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -31,6 +31,14 @@
 
   ::selection {
     background-color: var(--color-fg);
-    color: var(--color-color-base);
+    color: var(--color-base);
+  }
+
+  input[type="search"]::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  input[type="search"]::-ms-clear {
+    display: none;
   }
 }

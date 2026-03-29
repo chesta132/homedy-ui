@@ -1,5 +1,5 @@
 import { useFormLayout } from "./FormLayout";
-import { TextArea, type TextAreaProps } from "../form/text-area";
+import { TextArea, type TextAreaProps } from "../ui/text-area";
 
 type FormTextAreaProps = { fieldId?: string } & TextAreaProps;
 
@@ -8,14 +8,14 @@ export const FormTextArea = ({ fieldId, ...props }: FormTextAreaProps) => {
     form: {
       form: [val],
       error: [err],
-      validateField,
+      updateField,
     },
   } = useFormLayout();
 
   return (
     <TextArea
       value={fieldId && String(val[fieldId])}
-      onValueChange={fieldId ? (val) => validateField({ [fieldId]: val }) : undefined}
+      onValueChange={fieldId ? (val) => updateField(fieldId as any, val) : undefined}
       error={fieldId && err[fieldId]}
       {...props}
     />

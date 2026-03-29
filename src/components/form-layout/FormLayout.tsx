@@ -11,8 +11,9 @@ import { FormSeparator } from "./FormSeparator";
 import { FormDirection } from "./FormDirection";
 import { FormSingleDatePicker } from "./FormDatepicker";
 import { handleFormError } from "@/utils/server/handleError";
+import type { z, ZodObject } from "zod";
 
-type FormValues<F = any> = { form: FormGroup<F> };
+type FormValues<F extends ZodObject = any> = { form: FormGroup<F> };
 
 const FormContext = createContext<FormValues>({
   form: {
@@ -21,16 +22,17 @@ const FormContext = createContext<FormValues>({
     form: [{}, () => {}],
     validateForm: () => false,
     validateField: () => false,
+    updateField() {},
   },
 });
 
-type FormLayoutProps<F, C extends boolean> = {
+type FormLayoutProps<F extends ZodObject, C extends boolean> = {
   asChild?: C;
-  onFormSubmit?: C extends true ? never : (event: React.FormEvent<HTMLFormElement>, formValue: F) => any;
+  onFormSubmit?: C extends true ? never : (event: React.SubmitEvent<HTMLFormElement>, formValue: z.infer<F>) => any;
 } & (C extends true ? React.ComponentProps<"div"> : React.ComponentProps<"form">) &
   FormValues<F>;
 
-export const FormLayout = <F, C extends boolean = false>({
+export const FormLayout = <F extends ZodObject, C extends boolean = false>({
   form,
   asChild = false as C,
   onFormSubmit,
@@ -46,7 +48,7 @@ export const FormLayout = <F, C extends boolean = false>({
 
   const { setError } = useError();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (!validateForm()) return;

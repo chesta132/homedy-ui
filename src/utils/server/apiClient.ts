@@ -48,7 +48,7 @@ export class ApiClient {
     );
   }
 
-  private async request<T, B, Q, P>(config: ApiConfig<B, Q, P>): Promise<ServerSuccess<T>> {
+  private async request<T>(config: ApiConfig<any, any, any>): Promise<ServerSuccess<T>> {
     try {
       const response = (await this.api.request<T>({
         ...config,
@@ -63,23 +63,23 @@ export class ApiClient {
   }
 
   get<P extends keyof Get>(path: P, config?: ApiConfig<Get[P]["body"], Get[P]["query"], Get[P]["param"]>) {
-    return this.request({ ...config, url: path as string, method: "GET" });
+    return this.request<Get[P]["response"]>({ ...config, url: path as string, method: "GET" });
   }
 
   post<P extends keyof Post>(path: P, config?: ApiConfig<Post[P]["body"], Post[P]["query"], Post[P]["param"]>) {
-    return this.request({ ...config, url: path as string, method: "POST" });
+    return this.request<Post[P]["response"]>({ ...config, url: path as string, method: "POST" });
   }
 
   put<P extends keyof Put>(path: P, config?: ApiConfig<Put[P]["body"], Put[P]["query"], Put[P]["param"]>) {
-    return this.request({ ...config, url: path as string, method: "PUT" });
+    return this.request<Put[P]["response"]>({ ...config, url: path as string, method: "PUT" });
   }
 
   patch<P extends keyof Patch>(path: P, config?: ApiConfig<Patch[P]["body"], Patch[P]["query"], Patch[P]["param"]>) {
-    return this.request({ ...config, url: path as string, method: "PATCH" });
+    return this.request<Patch[P]["response"]>({ ...config, url: path as string, method: "PATCH" });
   }
 
   delete<P extends keyof Delete>(path: P, config?: ApiConfig<Delete[P]["body"], Delete[P]["query"], Delete[P]["param"]>) {
-    return this.request({ ...config, url: path as string, method: "DELETE" });
+    return this.request<Delete[P]["response"]>({ ...config, url: path as string, method: "DELETE" });
   }
 }
 

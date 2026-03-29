@@ -22,11 +22,11 @@ export const FormSelect = ({ fieldId, selectProps, ...props }: FormSelectProps) 
     form: {
       form: [val],
       error: [err],
-      validateField,
+      updateField,
     },
   } = useFormLayout();
 
-  const handleValueChange = fieldId ? ((val: string) => validateField({ [fieldId]: val })) : undefined;
+  const handleValueChange = fieldId ? (val: string) => updateField(fieldId as any, val) : undefined;
 
   return (
     <DropdownSelect

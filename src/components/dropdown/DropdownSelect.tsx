@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../form/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 import { capital } from "@/utils/manipulate/string";
-import { Select as SelectPrimitive } from 'radix-ui'
+import { Select as SelectPrimitive } from "radix-ui";
 
 type StringOrNode = string | React.ReactNode;
 

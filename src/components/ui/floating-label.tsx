@@ -18,7 +18,7 @@ export const FloatingLabel = ({ isFloat, size, label, placeholder, optional, cla
         isFloat
           ? `-left-1 text-xs font-medium px-1 bg-background ${size === "sm" ? "-top-1" : "-top-2.5"}`
           : `${size === "lg" ? "top-4.5" : "top-4"} left-0 text-sm text-foreground/80`,
-        className
+        className,
       )}
       {...rest}
     >
