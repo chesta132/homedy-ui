@@ -33,7 +33,7 @@ export class ApiClient {
 
     this.api.interceptors.response.use(
       (response) => {
-        response = camelizeKeys([response]) as any;
+        response.data = camelizeKeys(response.data) as any;
         return response;
       },
       (error) => {
