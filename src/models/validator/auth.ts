@@ -9,7 +9,7 @@ export abstract class AuthValidator {
 
   static readonly BODY = {
     signIn: z.object({
-      identifier: z.string("Invalid identifier"), // username or email
+      identifier: z.union([this.TEMPLATE.username, z.email()], "Invalid username or email"), // username or email
       password: this.TEMPLATE.password,
       rememberMe: z.boolean(),
     }),
