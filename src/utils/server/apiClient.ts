@@ -26,7 +26,7 @@ export class ApiClient {
 
     this.api.interceptors.request.use((req) => {
       if (req.data) {
-        req.data = Array.isArray(req.data) ? decamelizeKeys(req.data) : decamelizeKeys([req.data]);
+        req.data = decamelizeKeys(req.data);
       }
       return req;
     });

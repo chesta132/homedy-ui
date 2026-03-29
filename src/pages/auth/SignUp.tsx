@@ -9,6 +9,11 @@ import { Link } from "react-router";
 import { HomedyLogo } from "@/components/ui/logo";
 import { FormLayout } from "@/components/form-layout/FormLayout";
 
+type Submitted = {
+  isSubmitted: boolean;
+  email: string;
+};
+
 export const SignUpPage = () => {
   const formGroup = useForm({ email: "", password: "", username: "" }, AuthValidator.BODY.signUp);
   const {
@@ -16,7 +21,7 @@ export const SignUpPage = () => {
     validateForm,
   } = formGroup;
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState({ isSubmitted: false, email: "" });
+  const [submitted, setSubmitted] = useState<Submitted>({ isSubmitted: false, email: "" });
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -35,38 +40,7 @@ export const SignUpPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-base p-4">
       <AnimatePresence mode="wait">
         {submitted.isSubmitted ? (
-          <motion.div
-            key="pending"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.3 }}
-            className="w-full max-w-sm text-center"
-          >
-            <div className="mb-6 flex justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-border-sub bg-card">
-                <Mail className="h-7 w-7 text-subtle" />
-              </div>
-            </div>
-            <h1 className="text-2xl font-semibold text-fg">Check your inbox</h1>
-            <p className="mt-2 text-sm text-[#666666]">Your request has been submitted. The owner will receive an approval email shortly.</p>
-            <div className="mt-4 rounded-lg border border-[#1e1e1e] bg-card px-4 py-3">
-              <p className="text-xs text-dim">Registered as</p>
-              <p className="mt-0.5 text-sm font-medium text-fg">{submitted.email}</p>
-            </div>
-            <p className="mt-6 text-xs text-[#444444]">You'll receive an email at this address once the owner reviews your request.</p>
-            <div className="mt-6 space-y-3">
-              <Link to="/signup/approval">
-                <Button className="w-full h-10">Check request status</Button>
-              </Link>
-              <p className="text-center text-sm text-dim">
-                Already approved?{" "}
-                <Link to="/signin" className="text-fg underline underline-offset-4 hover:text-white">
-                  Sign in
-                </Link>
-              </p>
-            </div>
-          </motion.div>
+          <SubmittedUI data={submitted} />
         ) : (
           <motion.div
             key="form"
@@ -120,3 +94,38 @@ export const SignUpPage = () => {
     </div>
   );
 };
+
+const SubmittedUI = ({ data }: { data: Submitted }) => (
+  <motion.div
+    key="pending"
+    initial={{ opacity: 0, y: 16 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -16 }}
+    transition={{ duration: 0.3 }}
+    className="w-full max-w-sm text-center"
+  >
+    <div className="mb-6 flex justify-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-border-sub bg-card">
+        <Mail className="h-7 w-7 text-subtle" />
+      </div>
+    </div>
+    <h1 className="text-2xl font-semibold text-fg">Check your inbox</h1>
+    <p className="mt-2 text-sm text-[#666666]">Your request has been submitted. The owner will receive an approval email shortly.</p>
+    <div className="mt-4 rounded-lg border border-[#1e1e1e] bg-card px-4 py-3">
+      <p className="text-xs text-dim">Registered as</p>
+      <p className="mt-0.5 text-sm font-medium text-fg">{data.email}</p>
+    </div>
+    <p className="mt-6 text-xs text-[#444444]">You'll receive an email at this address once the owner reviews your request.</p>
+    <div className="mt-6 space-y-3">
+      <Link to="/signup/approval">
+        <Button className="w-full h-10">Check request status</Button>
+      </Link>
+      <p className="text-center text-sm text-dim">
+        Already approved?{" "}
+        <Link to="/signin" className="text-fg underline underline-offset-4 hover:text-white">
+          Sign in
+        </Link>
+      </p>
+    </div>
+  </motion.div>
+);

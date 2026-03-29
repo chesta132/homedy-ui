@@ -82,7 +82,7 @@ export const Input = ({
         {type === "password" && !end && (
           <button
             type="button"
-            onMouseDown={(e) => {
+            onClick={(e) => {
               e.preventDefault();
               setInputType((prev) => (prev === "password" ? "text" : "password"));
             }}
