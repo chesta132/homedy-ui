@@ -37,4 +37,8 @@ export abstract class SambaValidator {
     shares: z.record(this.TEMPLATE.shareName, this.MODEL.share),
     config: z.record(z.string(), z.string()),
   };
+
+  static readonly PARAM = {
+    shareName: z.object({ name: this.TEMPLATE.shareName }),
+  };
 }

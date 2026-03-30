@@ -1,31 +1,39 @@
 import z, { ZodOptional, ZodType, type ZodObject, type infer as ZodInfer } from "zod";
 import { AuthEndpoints } from "./auth";
 import { deepMergeAll } from "@/utils/manipulate/object";
+import { SambaEndpoints } from "./samba";
 
 export type Method = "POST" | "GET" | "PUT" | "PATCH" | "DELETE";
 export type Response = ZodType;
 export type Body = ZodType;
 export type Query = ZodOptional<ZodObject> | ZodObject;
 export type Param = ZodOptional<ZodObject> | ZodObject;
+export type Header = ZodOptional<ZodObject> | ZodObject;
 
 export type EndpointPath = {
   response: Response;
   body: Body;
   query: Query;
   param: Param;
+  header: Header;
 };
 
 export type EndpointPaths = Partial<Record<Method, Record<string, EndpointPath>>>;
 
 export abstract class Endpoints {
   private static readonly DEFAULT_PATH = { DELETE: {}, GET: {}, PATCH: {}, POST: {}, PUT: {} } as EndpointPaths;
-  static readonly PATHS = deepMergeAll(this.DEFAULT_PATH, AuthEndpoints.PATHS) satisfies EndpointPaths;
+  static readonly PATHS = deepMergeAll(this.DEFAULT_PATH, AuthEndpoints.PATHS, SambaEndpoints.PATHS) satisfies EndpointPaths;
 
-  static generatePath<B extends Body, R extends Response, Q extends Query, P extends Param>(
+  static generatePath<B extends Body, R extends Response, Q extends Query, P extends Param, H extends Header>(
     response: R,
-    { body = z.undefined() as unknown as B, param = z.object().optional() as P, query = z.object().optional() as Q } = {},
+    {
+      body = z.undefined() as unknown as B,
+      param = z.object().optional() as P,
+      query = z.object().optional() as Q,
+      header = z.object().optional() as H,
+    } = {},
   ) {
-    return { body, response, query, param };
+    return { body, response, query, param, header };
   }
 }
 
@@ -34,6 +42,7 @@ export type InferEndpointPath<T extends EndpointPath> = {
   body: ZodInfer<T["body"]>;
   query: ZodInfer<T["query"]>;
   param: ZodInfer<T["param"]>;
+  header: ZodInfer<T["header"]>;
 };
 
 export type InferEndpointPaths<T extends EndpointPaths> = {

@@ -1,22 +1,16 @@
-import * as React from "react"
-import { Label as LabelPrimitive } from "radix-ui"
+import * as React from "react";
+import { Label as LabelPrimitive } from "radix-ui";
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
-
-function Label({
-  className,
-  ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
-  return (
+const Label = React.forwardRef<React.ComponentRef<typeof LabelPrimitive.Root>, React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>>(
+  ({ className, ...props }, ref) => (
     <LabelPrimitive.Root
-      data-slot="label"
-      className={cn(
-        "text-sm font-normal cursor-pointer flex items-center gap-2 leading-none select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-        className,
-      )}
+      ref={ref}
+      className={cn("text-sm text-subtle leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
       {...props}
     />
-  );
-}
+  ),
+);
+Label.displayName = LabelPrimitive.Root.displayName;
 
-export { Label }
+export { Label };

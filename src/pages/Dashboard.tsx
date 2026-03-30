@@ -1,4 +1,4 @@
-import { Lock, type LucideProps } from "lucide-react";
+import { FolderOpen, Lock, type LucideProps } from "lucide-react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -12,13 +12,13 @@ type QickLink = {
 };
 
 const QUICK_LINKS = [
-  // {
-  //   name: "File Sharing",
-  //   desc: "Manage SMB/CIFS network shares",
-  //   href: "/file-sharing",
-  //   icon: FolderOpen,
-  //   available: true,
-  // },
+  {
+    name: "File Sharing",
+    desc: "Manage SMB/CIFS network shares",
+    href: "/file-sharing",
+    icon: FolderOpen,
+    available: true,
+  },
   // {
   //   name: "Terminal",
   //   desc: "Access system terminal over WebSocket",

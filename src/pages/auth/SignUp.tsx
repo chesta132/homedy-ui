@@ -3,11 +3,12 @@ import { AuthValidator } from "@/models/validator/auth";
 import { api } from "@/utils/server/apiClient";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Loader2, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 import { HomedyLogo } from "@/components/ui/logo";
 import { FormLayout } from "@/components/form-layout/FormLayout";
+import { Loading } from "@/components/ui/loading";
 
 type Submitted = {
   isSubmitted: boolean;
@@ -73,7 +74,7 @@ export const SignUpPage = () => {
               <FormLayout.submit>
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loading className="mr-2 size-4" />
                     Creating account...
                   </>
                 ) : (
@@ -115,7 +116,7 @@ const SubmittedUI = ({ data }: { data: Submitted }) => (
       <p className="text-xs text-dim">Registered as</p>
       <p className="mt-0.5 text-sm font-medium text-fg">{data.email}</p>
     </div>
-    <p className="mt-6 text-xs text-[#444444]">You'll receive an email at this address once the owner reviews your request.</p>
+    <p className="mt-6 text-xs text-muted">You'll receive an email at this address once the owner reviews your request.</p>
     <div className="mt-6 space-y-3">
       <Link to="/signup/approval">
         <Button className="w-full h-10">Check request status</Button>

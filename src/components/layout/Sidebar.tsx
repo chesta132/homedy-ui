@@ -29,7 +29,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "File Sharing", href: "#", icon: FolderOpen, comingSoon: true },
+  { name: "File Sharing", href: "/file-sharing", icon: FolderOpen },
   { name: "Terminal", href: "#", icon: Terminal, comingSoon: true },
   { name: "Converter", href: "#", icon: FileText, comingSoon: true },
   { name: "Chat", href: "#", icon: MessageSquare, comingSoon: true },

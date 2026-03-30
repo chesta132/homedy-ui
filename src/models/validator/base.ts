@@ -12,4 +12,8 @@ export abstract class BaseValidator {
       deletedAt: z.coerce.date(),
     })
     .and(this.baseModel);
+
+  static readonly HEADERS = {
+    appSecret: z.object({ "X-APP-SECRET": z.string() }),
+  };
 }

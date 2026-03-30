@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { HomedyLogo } from "@/components/ui/logo";
 import { FormLayout } from "@/components/form-layout/FormLayout";
-import { Loader2 } from "lucide-react";
+import { Loading } from "@/components/ui/loading";
 
 export const SignInPage = () => {
   const { setUser } = useAuth();
@@ -50,7 +50,7 @@ export const SignInPage = () => {
           <FormLayout.submit>
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loading className="mr-2 size-4" />
                 Logging in...
               </>
             ) : (

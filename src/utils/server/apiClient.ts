@@ -13,7 +13,11 @@ type Post = EndpointsType["POST"];
 type Delete = EndpointsType["DELETE"];
 type Patch = EndpointsType["PATCH"];
 
-export type ApiConfig<B, Q, P> = AxiosRequestConfig & OptionalField<"data", B> & OptionalField<"query", Q> & OptionalField<"param", P>;
+export type ApiConfig<B = any, Q = any, P = any, H = any> = AxiosRequestConfig &
+  OptionalField<"data", B> &
+  OptionalField<"query", Q> &
+  OptionalField<"param", P> &
+  OptionalField<"header", H>;
 
 export class ApiClient {
   private readonly api;
@@ -48,10 +52,13 @@ export class ApiClient {
     );
   }
 
-  private async request<T>(config: ApiConfig<any, any, any>): Promise<ServerSuccess<T>> {
+  private async request<T>({ query, param, url, header, ...config }: ApiConfig): Promise<ServerSuccess<T>> {
     try {
+      const path = joinQuery(insertParam(url!, param), query);
       const response = (await this.api.request<T>({
         ...config,
+        url: path,
+        headers: { ...config.headers, ...header },
       })) as AxiosResponse<Response<T>>;
       return new ServerSuccess(response);
     } catch (error) {
@@ -62,25 +69,37 @@ export class ApiClient {
     }
   }
 
-  get<P extends keyof Get>(path: P, config?: ApiConfig<Get[P]["body"], Get[P]["query"], Get[P]["param"]>) {
+  get<P extends keyof Get>(path: P, config?: ApiConfig<Get[P]["body"], Get[P]["query"], Get[P]["param"], Get[P]["header"]>) {
     return this.request<Get[P]["response"]>({ ...config, url: path as string, method: "GET" });
   }
 
-  post<P extends keyof Post>(path: P, config?: ApiConfig<Post[P]["body"], Post[P]["query"], Post[P]["param"]>) {
+  post<P extends keyof Post>(path: P, config?: ApiConfig<Post[P]["body"], Post[P]["query"], Post[P]["param"], Post[P]["header"]>) {
     return this.request<Post[P]["response"]>({ ...config, url: path as string, method: "POST" });
   }
 
-  put<P extends keyof Put>(path: P, config?: ApiConfig<Put[P]["body"], Put[P]["query"], Put[P]["param"]>) {
+  put<P extends keyof Put>(path: P, config?: ApiConfig<Put[P]["body"], Put[P]["query"], Put[P]["param"], Put[P]["header"]>) {
     return this.request<Put[P]["response"]>({ ...config, url: path as string, method: "PUT" });
   }
 
-  patch<P extends keyof Patch>(path: P, config?: ApiConfig<Patch[P]["body"], Patch[P]["query"], Patch[P]["param"]>) {
+  patch<P extends keyof Patch>(path: P, config?: ApiConfig<Patch[P]["body"], Patch[P]["query"], Patch[P]["param"], Patch[P]["header"]>) {
     return this.request<Patch[P]["response"]>({ ...config, url: path as string, method: "PATCH" });
   }
 
-  delete<P extends keyof Delete>(path: P, config?: ApiConfig<Delete[P]["body"], Delete[P]["query"], Delete[P]["param"]>) {
+  delete<P extends keyof Delete>(path: P, config?: ApiConfig<Delete[P]["body"], Delete[P]["query"], Delete[P]["param"], Delete[P]["header"]>) {
     return this.request<Delete[P]["response"]>({ ...config, url: path as string, method: "DELETE" });
   }
 }
 
 export const api = new ApiClient(VITE_BACKEND_URL!);
+
+function joinQuery(path: string, queries: Record<string, any>) {
+  const searchParams = new URLSearchParams(queries);
+  return `${path}?${searchParams.toString()}`;
+}
+
+function insertParam(path: string, params: Record<string, any>) {
+  return path.replace(/\{(\w+)\}/g, (_, key) => {
+    if (!(key in params)) throw new Error(`Missing param: ${key} while insert param for ${path}`);
+    return String(params[key]);
+  });
+}

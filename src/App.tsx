@@ -6,13 +6,16 @@ import { SignUpPage } from "./pages/auth/SignUp";
 import { SignInPage } from "./pages/auth/SignIn";
 import { DashboardPage } from "./pages/Dashboard";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
+import { FileSharingProvider } from "./contexts/FileSharingContext";
 import { AuthGuard, UnauthGuard } from "./components/layout/auth/Guard";
+import { FileSharingPage } from "./pages/FileSharing";
 
 function App() {
   return (
     <BrowserRouter>
       <ErrorProvider>
         <AuthProvider>
+          <FileSharingProvider>
             <Routes>
               {/* guest only */}
               <Route element={<UnauthGuard authRedirect="/" />}>
@@ -26,12 +29,14 @@ function App() {
                 {/* dashboard */}
                 <Route element={<DashboardLayout />}>
                   <Route path="/" index element={<DashboardPage />} />
+                  <Route path="/file-sharing" index element={<FileSharingPage />} />
                 </Route>
               </Route>
 
               {/* debug */}
               <Route path="*" element={<SignUpPage />} />
             </Routes>
+          </FileSharingProvider>
         </AuthProvider>
       </ErrorProvider>
     </BrowserRouter>

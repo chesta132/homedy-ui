@@ -1,8 +1,8 @@
+import { Loading } from "@/components/ui/loading";
 import { useAuth } from "@/contexts/AuthContext";
 import { useError } from "@/contexts/ErrorContext";
 import { handleError } from "@/utils/server/handleError";
 import { ServerError } from "@/utils/server/serverResponse";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router";
 
@@ -36,13 +36,11 @@ export const AuthGuard = ({ unauthRedirect }: { unauthRedirect: string }) => {
         setLoading(false);
       }
     })();
-  });
+  }, []);
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-base">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-strong" />
-      </div>
+      <Loading fullScreen />
     );
   }
 
@@ -70,7 +68,7 @@ export const UnauthGuard = ({ authRedirect }: { authRedirect: string }) => {
         if (!isUnauthorizedErr(err)) handleError(err, setError);
       }
     })();
-  });
+  }, []);
 
   return <Outlet />;
 };
