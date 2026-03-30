@@ -6,25 +6,32 @@ import { SignUpPage } from "./pages/auth/SignUp";
 import { SignInPage } from "./pages/auth/SignIn";
 import { DashboardPage } from "./pages/Dashboard";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
+import { AuthGuard, UnauthGuard } from "./components/layout/auth/Guard";
 
 function App() {
   return (
     <BrowserRouter>
       <ErrorProvider>
         <AuthProvider>
-          <Routes>
-            {/* auth */}
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/signin" element={<SignInPage />} />
+            <Routes>
+              {/* guest only */}
+              <Route element={<UnauthGuard authRedirect="/" />}>
+                {/* auth */}
+                <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/signin" element={<SignInPage />} />
+              </Route>
 
-            {/* dashboard */}
-            <Route path="/" element={<DashboardLayout />}>
-              <Route path="/" index element={<DashboardPage />} />
-            </Route>
+              {/* protected */}
+              <Route element={<AuthGuard unauthRedirect="/signin" />}>
+                {/* dashboard */}
+                <Route element={<DashboardLayout />}>
+                  <Route path="/" index element={<DashboardPage />} />
+                </Route>
+              </Route>
 
-            {/* debug */}
-            <Route path="*" element={<SignUpPage />} />
-          </Routes>
+              {/* debug */}
+              <Route path="*" element={<SignUpPage />} />
+            </Routes>
         </AuthProvider>
       </ErrorProvider>
     </BrowserRouter>
