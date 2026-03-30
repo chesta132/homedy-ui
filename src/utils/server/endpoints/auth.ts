@@ -6,7 +6,7 @@ import z from "zod";
 export abstract class AuthEndpoints {
   static readonly PATHS = {
     POST: {
-      "/auth/signup": Endpoints.generatePath(UserValidator.MODEL.user, { body: AuthValidator.BODY.signUp }),
+      "/auth/signup": Endpoints.generatePath(z.null(), { body: AuthValidator.BODY.signUp }),
       "/auth/signup/approval": Endpoints.generatePath(UserValidator.MODEL.user, { body: AuthValidator.BODY.signUpApproval }),
       "/auth/signin": Endpoints.generatePath(UserValidator.MODEL.user, { body: AuthValidator.BODY.signIn }),
       "/auth/signout": Endpoints.generatePath(z.null()),

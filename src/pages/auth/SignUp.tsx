@@ -28,8 +28,8 @@ export const SignUpPage = () => {
     if (!validateForm()) return;
     setLoading(true);
     try {
-      const res = await api.post("/auth/signup", { data: form });
-      setSubmitted({ isSubmitted: true, email: res.data.email });
+      await api.post("/auth/signup", { data: form });
+      setSubmitted({ isSubmitted: true, email: form.email });
       // catch in FormLayout
     } finally {
       setLoading(false);
