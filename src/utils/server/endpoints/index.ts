@@ -2,6 +2,7 @@ import z, { ZodOptional, ZodType, type ZodObject, type infer as ZodInfer } from 
 import { AuthEndpoints } from "./auth";
 import { deepMergeAll } from "@/utils/manipulate/object";
 import { SambaEndpoints } from "./samba";
+import { ConvertEndpoints } from "./convert";
 
 export type Method = "POST" | "GET" | "PUT" | "PATCH" | "DELETE";
 export type Response = ZodType;
@@ -22,7 +23,7 @@ export type EndpointPaths = Partial<Record<Method, Record<string, EndpointPath>>
 
 export abstract class Endpoints {
   private static readonly DEFAULT_PATH = { DELETE: {}, GET: {}, PATCH: {}, POST: {}, PUT: {} } as EndpointPaths;
-  static readonly PATHS = deepMergeAll(this.DEFAULT_PATH, AuthEndpoints.PATHS, SambaEndpoints.PATHS) satisfies EndpointPaths;
+  static readonly PATHS = deepMergeAll(this.DEFAULT_PATH, AuthEndpoints.PATHS, SambaEndpoints.PATHS, ConvertEndpoints.PATHS) satisfies EndpointPaths;
 
   static generatePath<B extends Body, R extends Response, Q extends Query, P extends Param, H extends Header>(
     response: R,

@@ -11,6 +11,7 @@ import { AuthGuard, UnauthGuard } from "./components/layout/auth/Guard";
 import { FileSharingPage } from "./pages/FileSharing";
 import { Toaster } from "./components/ui/toaster";
 import { TerminalPage } from "./pages/TerminalPage";
+import { ConvertPage } from "./pages/ConvertPage";
 
 function App() {
   return (
@@ -31,8 +32,9 @@ function App() {
                 {/* dashboard */}
                 <Route element={<DashboardLayout />}>
                   <Route path="/" index element={<DashboardPage />} />
-                  <Route path="/file-sharing" index element={<FileSharingPage />} />
-                  <Route path="/terminal" index element={<TerminalPage />} />
+                  <Route path="/file-sharing" element={<FileSharingPage />} />
+                  <Route path="/terminal" element={<TerminalPage />} />
+                  <Route path="/convert" element={<ConvertPage />} />
                 </Route>
               </Route>
 

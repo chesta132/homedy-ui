@@ -1,4 +1,4 @@
-import { FolderOpen, Lock, Terminal, type LucideProps } from "lucide-react";
+import { FileOutput, FolderOpen, Lock, Terminal, type LucideProps } from "lucide-react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -26,13 +26,13 @@ const QUICK_LINKS = [
     icon: Terminal,
     available: true,
   },
-  // {
-  //   name: "Converter",
-  //   desc: "Convert files between formats",
-  //   href: "/converter",
-  //   icon: FileOutput,
-  //   available: true,
-  // },
+  {
+    name: "Converter",
+    desc: "Convert files between formats",
+    href: "/convert",
+    icon: FileOutput,
+    available: true,
+  },
 ] satisfies QickLink[];
 
 export const DashboardPage = () => {

@@ -86,3 +86,18 @@ export function deepMerge<T extends object, U extends object>(a: T, b: U): DeepM
 export function deepMergeAll<T extends readonly object[]>(...objects: T): DeepMergeAll<T> {
   return objects.reduce((acc, obj) => deepMerge(acc, obj)) as DeepMergeAll<T>;
 }
+
+export const objToFormData = (obj: Record<string, string | Blob | (string | Blob)[]>) => {
+  const fd = new FormData();
+  for (const key in obj) {
+    const val = obj[key];
+    if (Array.isArray(val)) {
+      for (const item of val) {
+        fd.append(key, item);
+      }
+    } else {
+      fd.append(key, val);
+    }
+  }
+  return fd;
+};

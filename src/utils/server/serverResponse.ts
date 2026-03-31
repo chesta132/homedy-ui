@@ -40,8 +40,14 @@ export class ServerSuccess<T> {
 
   constructor(response: AxiosResponse<Response<T>>) {
     this.axios = response;
-    this.data = response.data.data;
-    this.meta = response.data.meta;
+    const data = response.data;
+    if (data instanceof Blob || typeof data !== "object") {
+      this.data = data as any;
+      this.meta = data as any;
+    } else {
+      this.data = data.data;
+      this.meta = data.meta;
+    }
   }
 
   getInfo() {
@@ -55,6 +61,12 @@ export class ServerSuccess<T> {
     const next = meta.next;
     return { current, hasNext, next };
   }
+
+  getFilename: T extends Blob ? () => string : never = (() => {
+    const disposition: string = this.axios.headers["content-disposition"] ?? "";
+    const match = disposition.match(/filename="?([^";\r\n]+)"?/);
+    return match?.[1]?.trim();
+  }) as any;
 
   setToState(setState: React.Dispatch<React.SetStateAction<T>>) {
     setState(this.data);

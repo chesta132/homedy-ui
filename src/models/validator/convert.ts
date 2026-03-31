@@ -28,6 +28,30 @@ export abstract class ConvertValidator {
     pdf: 15 << 20,
   };
 
+  static readonly ACCEPTED_EXTS = Object.keys(this.PAIRS);
+
+  static readonly ACCEPTED_MIME = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "text/html",
+    "text/markdown",
+    "text/csv",
+    ".md",
+    ".html",
+    ".csv",
+  ].join(",");
+
+  static getExt(filename: string) {
+    return filename.split(".").pop()?.toLowerCase() || "";
+  }
+
+  static getTargets(filename: string) {
+    const ext = this.getExt(filename);
+    return this.PAIRS[ext as keyof typeof this.PAIRS] ?? [];
+  }
+
   private static isValidPair = (from: string, to: string): boolean => this.PAIRS[from as keyof typeof this.PAIRS]?.includes(to) ?? false;
 
   private static fileWithConvertTo = (file: File) => {
