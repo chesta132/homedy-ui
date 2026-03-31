@@ -41,17 +41,10 @@ export async function convertSingle(entry: FileEntry) {
  */
 export async function convertMultiple(entries: FileEntry[]) {
   // TODO: when camelize removed, remove as any
-  const data = entries.reduce(
-    (acc, entry) => {
-      acc.files.push(entry.file);
-      acc.convert_to.push(entry.convertTo);
-      return acc;
-    },
-    {
-      files: [],
-      convert_to: [],
-    } as any,
-  );
+  const data = entries.reduce((acc, entry) => ({ files: [...acc.files, entry.file], convert_to: [...acc.convert_to, entry.convertTo] }), {
+    files: [],
+    convert_to: [],
+  } as any);
 
   const res = await api.post("/convert/multiple", {
     data,
@@ -99,7 +92,7 @@ export async function runBatch(entries: FileEntry[]): Promise<void> {
   }
 
   try {
-    const filename = await convertMultiple(entries);
+    const filename = await convertMultiple(valid);
     toast.success(`Downloaded: ${filename}`);
   } catch {
     toast.error("Batch conversion failed");

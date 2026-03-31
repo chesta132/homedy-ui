@@ -1,54 +1,13 @@
-import { useState, useCallback } from "react";
 import { Layers, FileOutput, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { FileRow, FileMobileCard } from "@/components/converter/FileRow";
 import { UploadRow, UploadButton } from "@/components/converter/UploadRow";
 import { ConvertValidator } from "@/models/validator/convert";
-import { runBatch, runSingle, type FileEntry } from "@/utils/convert/convert";
+import { useConvert } from "@/contexts/ConvertContext";
 
 export function ConvertPage() {
-  const [entries, setEntries] = useState<FileEntry[]>([]);
-  const [batchLoading, setBatchLoading] = useState(false);
-
-  const addFiles = useCallback((files: File[]) => {
-    setEntries((prev) => [
-      ...prev,
-      ...files.map(
-        (f): FileEntry => ({
-          id: `${Date.now()}-${Math.random()}`,
-          file: f,
-          convertTo: ConvertValidator.getTargets(f.name)[0] ?? "",
-          loading: false,
-        }),
-      ),
-    ]);
-  }, []);
-
-  const removeEntry = useCallback((id: string) => {
-    setEntries((prev) => prev.filter((e) => e.id !== id));
-  }, []);
-
-  const setConvertTo = useCallback((id: string, val: string) => {
-    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, convertTo: val } : e)));
-  }, []);
-
-  const setEntryLoading = useCallback((id: string, loading: boolean) => {
-    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, loading } : e)));
-  }, []);
-
-  const handleSingle = useCallback(async () => {
-    await runSingle(entries, setEntryLoading);
-  }, [entries, setEntryLoading]);
-
-  const handleBatch = useCallback(async () => {
-    setBatchLoading(true);
-    try {
-      await runBatch(entries);
-    } finally {
-      setBatchLoading(false);
-    }
-  }, [entries]);
+  const { addFiles, batchLoading, entries, handleBatch, handleSingle, removeEntry, setConvertTo } = useConvert();
 
   const anyLoading = batchLoading || entries.some((e) => e.loading);
   const hasEntries = entries.length > 0;
@@ -57,8 +16,8 @@ export function ConvertPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-semibold text-[#ededed]">Converter</h1>
-        <p className="mt-1 text-sm text-[#555555]">Convert files between formats</p>
+        <h1 className="text-xl font-semibold text-fg">Converter</h1>
+        <p className="mt-1 text-sm text-dim">Convert files between formats</p>
       </div>
 
       {/* Desktop layout */}
@@ -96,8 +55,8 @@ export function ConvertPage() {
 
       {/* Empty state */}
       {!hasEntries && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-lg border border-dashed border-[#1e1e1e] p-8 text-center">
-          <p className="text-sm text-[#333333]">Supported: {ConvertValidator.ACCEPTED_EXTS.map((e) => `.${e}`).join(", ")}</p>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-lg border border-dashed border-border p-8 text-center">
+          <p className="text-sm text-muted-strong">Supported: {ConvertValidator.ACCEPTED_EXTS.map((e) => `.${e}`).join(", ")}</p>
         </motion.div>
       )}
     </div>

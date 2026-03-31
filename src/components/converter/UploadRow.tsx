@@ -36,7 +36,7 @@ export function UploadRow({ onFiles }: UploadRowProps) {
       }}
       className={cn(
         "flex items-center justify-between gap-3 rounded-lg border border-dashed px-4 py-3 transition-colors cursor-pointer",
-        dragging ? "border-[#3a3a3a] bg-[#161616]" : "border-[#1e1e1e] bg-[#0d0d0d] hover:border-[#2a2a2a] hover:bg-[#111111]",
+        dragging ? "border-border-drag bg-hover" : "border-border bg-surface hover:border-border-sub hover:bg-card",
       )}
       onClick={() => inputRef.current?.click()}
     >
@@ -55,10 +55,10 @@ export function UploadRow({ onFiles }: UploadRowProps) {
         }}
       />
       <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#2a2a2a] bg-[#1a1a1a]">
-          <Upload className="h-3.5 w-3.5 text-[#555555]" />
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border-sub bg-elevated">
+          <Upload className="h-3.5 w-3.5 text-dim" />
         </div>
-        <span className="text-sm text-[#444444]">Drop files or click to upload</span>
+        <span className="text-sm text-muted">Drop files or click to upload</span>
       </div>
       <ConvertSelect options={[]} value="" onChange={() => {}} disabled />
     </div>

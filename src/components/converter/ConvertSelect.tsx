@@ -20,8 +20,8 @@ export function ConvertSelect({ options, value, onChange, disabled }: ConvertSel
 
   if (disabled || options.length === 0) {
     return (
-      <div className="flex h-8 min-w-[110px] items-center gap-1.5 rounded-md border border-[#1e1e1e] bg-[#111111] px-2.5 opacity-40 cursor-not-allowed select-none">
-        <span className="text-xs text-[#555555]">convert to</span>
+      <div className="flex h-8 min-w-27.5 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 opacity-40 cursor-not-allowed select-none">
+        <span className="text-xs text-dim">convert to</span>
       </div>
     );
   }
@@ -32,17 +32,12 @@ export function ConvertSelect({ options, value, onChange, disabled }: ConvertSel
         type="button"
         onClick={() => setOpen((p) => !p)}
         className={cn(
-          "flex h-8 min-w-[110px] items-center justify-between gap-1.5 rounded-md border px-2.5 text-xs transition-colors focus:outline-none",
-          "border-[#2a2a2a] bg-[#1a1a1a] text-[#ededed] hover:border-[#383838] hover:bg-[#1e1e1e]"
+          "flex h-8 min-w-27.5 items-center justify-between gap-1.5 rounded-md border px-2.5 text-xs transition-colors focus:outline-none",
+          "border-border-sub bg-elevated text-fg hover:border-border hover:bg-border",
         )}
       >
         <span className="font-mono">.{value}</span>
-        <ChevronDown
-          className={cn(
-            "h-3 w-3 text-[#555555] transition-transform",
-            open && "rotate-180"
-          )}
-        />
+        <ChevronDown className={cn("h-3 w-3 text-dim transition-transform", open && "rotate-180")} />
       </button>
 
       <AnimatePresence>
@@ -52,23 +47,24 @@ export function ConvertSelect({ options, value, onChange, disabled }: ConvertSel
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.1 }}
-            className="absolute right-0 top-9 z-50 min-w-[110px] overflow-hidden rounded-md border border-[#2a2a2a] bg-[#161616] shadow-xl"
+            className="absolute right-0 top-9 z-50 min-w-27.5 overflow-hidden rounded-md border border-border-sub bg-hover shadow-xl"
           >
             {options.map((opt) => (
               <button
                 key={opt}
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => { onChange(opt); setOpen(false); }}
+                onClick={() => {
+                  onChange(opt);
+                  setOpen(false);
+                }}
                 className={cn(
-                  "flex w-full items-center px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-[#1e1e1e]",
-                  opt === value ? "text-[#ededed]" : "text-[#888888]"
+                  "flex w-full items-center px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-border",
+                  opt === value ? "text-fg" : "text-subtle",
                 )}
               >
                 <span className="font-mono">.{opt}</span>
-                {opt === value && (
-                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white" />
-                )}
+                {opt === value && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white" />}
               </button>
             ))}
           </motion.div>

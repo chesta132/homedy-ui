@@ -21,22 +21,22 @@ export function FileRow({ entry, onRemove, onConvertToChange }: FileRowProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -12 }}
       transition={{ duration: 0.15 }}
-      className="flex items-center justify-between gap-3 rounded-lg border border-[#1e1e1e] bg-[#111111] px-4 py-3"
+      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3"
     >
       <div className="flex min-w-0 items-center gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#2a2a2a] bg-[#1a1a1a]">
-          <FileIcon className="h-3.5 w-3.5 text-[#555555]" />
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border-sub bg-elevated">
+          <FileIcon className="h-3.5 w-3.5 text-dim" />
         </div>
-        <span className="truncate text-sm text-[#ededed]">{entry.file.name}</span>
+        <span className="truncate text-sm text-fg">{entry.file.name}</span>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        {entry.loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-[#555555]" />}
+        {entry.loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-dim" />}
         <ConvertSelect options={targets} value={entry.convertTo} onChange={(v) => onConvertToChange(entry.id, v)} disabled={entry.loading} />
         <button
           onClick={() => onRemove(entry.id)}
           disabled={entry.loading}
-          className="flex h-6 w-6 items-center justify-center rounded text-[#444444] transition-colors hover:bg-[#1e1e1e] hover:text-[#888888] disabled:opacity-40"
+          className="flex h-6 w-6 items-center justify-center rounded text-muted transition-colors hover:bg-border hover:text-subtle disabled:opacity-40"
         >
           <X className="h-3.5 w-3.5" />
         </button>
@@ -56,24 +56,24 @@ export function FileMobileCard({ entry, onRemove, onConvertToChange }: FileRowPr
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -12 }}
       transition={{ duration: 0.15 }}
-      className="rounded-lg border border-[#1e1e1e] bg-[#111111] px-3 py-3"
+      className="rounded-lg border border-border bg-card px-3 py-3"
     >
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#2a2a2a] bg-[#1a1a1a]">
-          <FileIcon className="h-3 w-3 text-[#555555]" />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border-sub bg-elevated">
+          <FileIcon className="h-3 w-3 text-dim" />
         </div>
-        <span className="flex-1 truncate text-sm text-[#ededed]">{entry.file.name}</span>
-        {entry.loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-[#555555]" />}
+        <span className="flex-1 truncate text-sm text-fg">{entry.file.name}</span>
+        {entry.loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-dim" />}
         <button
           onClick={() => onRemove(entry.id)}
           disabled={entry.loading}
-          className="flex h-6 w-6 items-center justify-center rounded text-[#444444] transition-colors hover:bg-[#1e1e1e] hover:text-[#888888] disabled:opacity-40"
+          className="flex h-6 w-6 items-center justify-center rounded text-muted transition-colors hover:bg-border hover:text-subtle disabled:opacity-40"
         >
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
       <div className="mt-2 flex items-center gap-2 pl-9">
-        <span className="text-xs text-[#555555]">convert to</span>
+        <span className="text-xs text-dim">convert to</span>
         <ConvertSelect options={targets} value={entry.convertTo} onChange={(v) => onConvertToChange(entry.id, v)} disabled={entry.loading} />
       </div>
     </motion.div>
