@@ -1,36 +1,18 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "../ui/Input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { TagInput } from "@/components/ui/tag-input";
-import { PermissionInput } from "@/components/ui/permission-input";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import type { Share, SambaBool } from "@/models/samba";
+import type { Share } from "@/models/samba";
 import { toast } from "@/components/ui/toaster";
 import { api } from "@/utils/server/apiClient";
-
-type ShareFormData = {
-  name: string;
-  path: string;
-  readOnly: SambaBool;
-  browsable: SambaBool;
-  validUsers: string[];
-  adminUsers: string[];
-  permissions: number[];
-};
-
-const DEFAULT_FORM: ShareFormData = {
-  name: "",
-  path: "",
-  readOnly: "no",
-  browsable: "yes",
-  validUsers: [],
-  adminUsers: [],
-  permissions: [7, 7, 5],
-};
+import { useForm } from "@/hooks/useForm";
+import { SambaValidator } from "@/models/validator/samba";
+import { FormLayout } from "../form-layout/FormLayout";
+import { useFileSharing } from "@/contexts/FileSharingContext";
+import { ServerError } from "@/utils/server/serverResponse";
+import { capital } from "@/utils/manipulate/string";
 
 type Mode = { type: "create" } | { type: "edit"; name: string; share: Share };
 
@@ -38,82 +20,67 @@ interface ShareFormProps {
   open: boolean;
   mode: Mode;
   onClose: () => void;
-  onSuccess: () => void;
 }
 
 /**
  * Modal form for creating or editing a Samba share.
  * Fields exactly match the backend Share model.
  */
-export function ShareForm({ open, mode, onClose, onSuccess }: ShareFormProps) {
+export function ShareForm({ open, mode, onClose }: ShareFormProps) {
   const isEdit = mode.type === "edit";
-  const [form, setForm] = useState<ShareFormData>(DEFAULT_FORM);
-  const [errors, setErrors] = useState<Partial<Record<keyof ShareFormData, string>>>({});
+  const { setShares } = useFileSharing();
   const [loading, setLoading] = useState(false);
+
+  const editFormGroup = useForm(
+    { adminUsers: [], browsable: "yes", name: "", path: "/", permissions: [7, 7, 5], readOnly: "no", validUsers: [] },
+    SambaValidator.BODY.updateShare,
+  );
+  const {
+    form: [editForm, setEditForm],
+    validateForm: validateCreateForm,
+  } = editFormGroup;
+
+  const createFormGroup = useForm(
+    { adminUsers: [], browsable: "yes", name: "", path: "", permissions: [7, 7, 5], readOnly: "no", validUsers: [] },
+    SambaValidator.BODY.createShare,
+  );
+  const {
+    form: [createForm],
+    validateForm: validateEditFOrm,
+  } = editFormGroup;
 
   // Populate form when editing
   useEffect(() => {
     if (mode.type === "edit") {
       const { name, share } = mode;
-      setForm({
+      setEditForm({
         name,
         path: share.path,
         readOnly: share.readOnly,
         browsable: share.browsable,
-        validUsers: share.validUsers ?? [],
-        adminUsers: share.adminUsers ?? [],
-        permissions: share.permissions ?? [7, 7, 5],
+        validUsers: share.validUsers,
+        adminUsers: share.adminUsers,
+        permissions: share.permissions,
       });
-    } else {
-      setForm(DEFAULT_FORM);
     }
-    setErrors({});
   }, [open, mode]);
 
-  const set = <K extends keyof ShareFormData>(key: K, value: ShareFormData[K]) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    // Clear field error on change
-    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
-  };
-
-  const validate = (): boolean => {
-    const next: typeof errors = {};
-    if (!form.name.trim()) next.name = "Share name is required";
-    else if (!/^[a-zA-Z0-9_\-]+$/.test(form.name)) next.name = "Only letters, digits, hyphens and underscores allowed";
-    if (!form.path.trim()) next.path = "Path is required";
-    else if (!form.path.startsWith("/")) next.path = "Path must be an absolute path (starts with /)";
-    if (form.validUsers.length === 0) next.validUsers = "At least one valid user is required";
-    if (form.adminUsers.length === 0) next.adminUsers = "At least one admin user is required";
-    if (form.permissions.length !== 3 || form.permissions.some((p) => p < 0 || p > 7)) next.permissions = "Each permission digit must be 0–7";
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  };
-
   const handleSubmit = async () => {
-    if (!validate()) return;
+    if (isEdit ? !validateEditFOrm() : !validateCreateForm()) return;
     setLoading(true);
     try {
-      const data = {
-        name: form.name,
-        path: form.path,
-        readOnly: form.readOnly,
-        browsable: form.browsable,
-        validUsers: form.validUsers,
-        adminUsers: form.adminUsers,
-        permissions: form.permissions,
-      };
-
       if (isEdit) {
-        await api.put("/samba/{name}", { data, param: { name: mode.name } });
+        const shares = await api.put("/samba/{name}", { data: editForm, param: { name: mode.name } });
+        setShares(shares.data);
         toast.success("Share updated successfully");
       } else {
-        await api.post("/samba", { data });
+        const shares = await api.post("/samba", { data: createForm });
+        setShares(shares.data);
         toast.success("Share created successfully");
       }
-      onSuccess();
       onClose();
-    } catch (err: any) {
-      const msg = err?.data?.message ?? "Something went wrong";
+    } catch (err) {
+      const msg = err instanceof ServerError ? capital(err.getMessage()) : "Something went wrong";
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -128,28 +95,18 @@ export function ShareForm({ open, mode, onClose, onSuccess }: ShareFormProps) {
           <DialogDescription>{isEdit ? "Update share configuration" : "Configure a new SMB/CIFS network share"}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 py-2">
+        <FormLayout form={isEdit ? editFormGroup : createFormGroup} className="space-y-5 py-2">
           {/* Share name — readonly when editing */}
           <div className="space-y-1.5">
-            <Label>Share Name</Label>
-            <Input
-              placeholder="my-share"
-              value={form.name}
-              onChange={(e) => set("name", e.target.value)}
-              error={errors.name}
-              disabled={isEdit}
-              className={isEdit ? "opacity-60 cursor-not-allowed" : ""}
-            />
-            {isEdit && <p className="text-xs text-muted">Share name cannot be changed after creation</p>}
+            {/* <Label>Share Name</Label> */}
+            <FormLayout.input fieldId="name" placeholder="my-share" label="Share Name" />
           </div>
 
           {/* Path */}
-          <div className="space-y-1.5">
-            <Label>Path</Label>
-            <Input placeholder="/srv/my-share" value={form.path} onChange={(e) => set("path", e.target.value)} error={errors.path} />
-          </div>
+          <FormLayout.input fieldId="path" placeholder="/srv/my-share" label="Path" />
 
-          <Separator />
+          {/* <Separator /> */}
+          <FormLayout.separator />
 
           {/* Toggles */}
           <div className="space-y-3">
@@ -158,14 +115,14 @@ export function ShareForm({ open, mode, onClose, onSuccess }: ShareFormProps) {
                 <Label>Read Only</Label>
                 <p className="text-xs text-muted mt-0.5">Prevent writes to this share</p>
               </div>
-              <Switch checked={form.readOnly === "yes"} onCheckedChange={(v) => set("readOnly", v ? "yes" : "no")} />
+              <FormLayout.toggle fieldId="readOnly" boolTransform={{ true: "yes", false: "no" }} />
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <Label>Browsable</Label>
                 <p className="text-xs text-muted mt-0.5">Show in network browse list</p>
               </div>
-              <Switch checked={form.browsable === "yes"} onCheckedChange={(v) => set("browsable", v ? "yes" : "no")} />
+              <FormLayout.toggle fieldId="browsable" boolTransform={{ true: "yes", false: "no" }} />
             </div>
           </div>
 
@@ -174,18 +131,13 @@ export function ShareForm({ open, mode, onClose, onSuccess }: ShareFormProps) {
           {/* Valid Users */}
           <div className="space-y-1.5">
             <Label>Valid Users</Label>
-            <TagInput value={form.validUsers} onChange={(tags) => set("validUsers", tags)} placeholder="Add user..." error={errors.validUsers} />
+            <FormLayout.tagInput fieldId="validUsers" placeholder="Add user..." />
           </div>
 
           {/* Admin Users */}
           <div className="space-y-1.5">
             <Label>Admin Users</Label>
-            <TagInput
-              value={form.adminUsers}
-              onChange={(tags) => set("adminUsers", tags)}
-              placeholder="Add admin user..."
-              error={errors.adminUsers}
-            />
+            <FormLayout.tagInput fieldId="adminUsers" placeholder="Add admin user..." />
           </div>
 
           <Separator />
@@ -193,9 +145,9 @@ export function ShareForm({ open, mode, onClose, onSuccess }: ShareFormProps) {
           {/* Permissions */}
           <div className="space-y-1.5">
             <Label>Permissions</Label>
-            <PermissionInput value={form.permissions} onChange={(perms) => set("permissions", perms)} error={errors.permissions} />
+            <FormLayout.unixPermissionInput fieldId="permissions" />
           </div>
-        </div>
+        </FormLayout>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>

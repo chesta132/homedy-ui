@@ -4,29 +4,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toaster";
 import { api } from "@/utils/server/apiClient";
+import { capital } from "@/utils/manipulate/string";
+import { ServerError } from "@/utils/server/serverResponse";
+import { useFileSharing } from "@/contexts/FileSharingContext";
 
 interface DeleteShareDialogProps {
   open: boolean;
   shareName: string;
   onClose: () => void;
-  onSuccess: () => void;
 }
 
 /**
  * Confirmation dialog before deleting a share.
  */
-export function DeleteShareDialog({ open, shareName, onClose, onSuccess }: DeleteShareDialogProps) {
+export function DeleteShareDialog({ open, shareName, onClose }: DeleteShareDialogProps) {
   const [loading, setLoading] = useState(false);
+  const { setShares } = useFileSharing();
 
   const handleDelete = async () => {
     setLoading(true);
     try {
-      await api.delete("/samba/{name}", { param: { name: shareName } });
+      const shares = await api.delete("/samba/{name}", { param: { name: shareName } });
+      setShares(shares.data);
       toast.success(`Share "${shareName}" deleted`);
-      onSuccess();
       onClose();
-    } catch (err: any) {
-      toast.error(err?.data?.message ?? "Failed to delete share");
+    } catch (err) {
+      toast.error(err instanceof ServerError ? capital(err.getMessage()) : "Failed to delete share");
     } finally {
       setLoading(false);
     }

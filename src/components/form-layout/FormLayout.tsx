@@ -2,7 +2,7 @@ import { useError } from "@/contexts/ErrorContext";
 import type { FormGroup } from "@/hooks/useForm";
 import { cn } from "@/lib/utils";
 import { createContext, useContext } from "react";
-import { FormInput } from "./FormInput";
+import { FormInput, FormTagInput, FormUnixPermissionInput } from "./FormInput";
 import { FormButton, FormSubmit, FormCancel } from "./FormButtons";
 import { FormCheckbox } from "./FormCheckbox";
 import { FormSelect } from "./FormSelect";
@@ -12,6 +12,8 @@ import { FormDirection } from "./FormDirection";
 import { FormSingleDatePicker } from "./FormDatepicker";
 import { handleFormError } from "@/utils/server/handleError";
 import type { z, ZodObject } from "zod";
+import { FormFieldError } from "./FormError";
+import { FormToggle } from "./FormToggle";
 
 type FormValues<F extends ZodObject = any> = { form: FormGroup<F> };
 
@@ -80,6 +82,10 @@ FormLayout.submit = FormSubmit;
 FormLayout.cancel = FormCancel;
 FormLayout.direction = FormDirection;
 FormLayout.singleDatePicker = FormSingleDatePicker;
+FormLayout.fieldError = FormFieldError;
+FormLayout.toggle = FormToggle;
+FormLayout.tagInput = FormTagInput;
+FormLayout.unixPermissionInput = FormUnixPermissionInput;
 
 export const useFormLayout = () => {
   const context = useContext(FormContext);

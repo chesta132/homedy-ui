@@ -9,6 +9,7 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { FileSharingProvider } from "./contexts/FileSharingContext";
 import { AuthGuard, UnauthGuard } from "./components/layout/auth/Guard";
 import { FileSharingPage } from "./pages/FileSharing";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           </FileSharingProvider>
         </AuthProvider>
       </ErrorProvider>
+      <Toaster />
     </BrowserRouter>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useRef, type KeyboardEvent } from "react";
 import { X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface TagInputProps {
+export interface TagInputProps {
   value: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;

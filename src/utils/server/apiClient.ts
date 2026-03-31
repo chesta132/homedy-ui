@@ -1,7 +1,7 @@
 import { isProdEnv, VITE_BACKEND_URL } from "@/config";
 import { pick } from "../manipulate/object";
 import type { EndpointsType } from "./endpoints";
-import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
+import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 import { ServerError, ServerSuccess } from "./serverResponse";
 import type { Response } from "@/types/server";
 import { camelizeKeys, decamelizeKeys } from "humps";
@@ -13,11 +13,13 @@ type Post = EndpointsType["POST"];
 type Delete = EndpointsType["DELETE"];
 type Patch = EndpointsType["PATCH"];
 
+type SkipCamelize = { skipCamelize?: boolean };
 export type ApiConfig<B = any, Q = any, P = any, H = any> = AxiosRequestConfig &
   OptionalField<"data", B> &
   OptionalField<"query", Q> &
   OptionalField<"param", P> &
-  OptionalField<"header", H>;
+  OptionalField<"header", H> &
+  SkipCamelize;
 
 export class ApiClient {
   private readonly api;
@@ -28,17 +30,19 @@ export class ApiClient {
       withCredentials: true,
     });
 
-    this.api.interceptors.request.use((req) => {
-      if (req.data) {
+    this.api.interceptors.request.use((req: InternalAxiosRequestConfig<any> & SkipCamelize) => {
+      if (req.data && !req.skipCamelize) {
         req.data = decamelizeKeys(req.data);
       }
       return req;
     });
 
     this.api.interceptors.response.use(
-      (response) => {
-        response.data = camelizeKeys(response.data) as any;
-        return response;
+      (res: AxiosResponse & { config: ApiConfig }) => {
+        if (res.data && !res.config.skipCamelize) {
+          res.data = camelizeKeys(res.data);
+        }
+        return res;
       },
       (error) => {
         if (isProdEnv()) console.error("Error in API call:\n", error);

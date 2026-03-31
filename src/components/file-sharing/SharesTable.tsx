@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, Trash2, EyeOff, Eye, Lock, Unlock } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, EyeOff, Eye, Lock, Unlock, FolderX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -19,7 +19,8 @@ export function SharesTable({ shares, onEdit, onDelete }: SharesTableProps) {
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border py-12 text-center">
+      <div className="rounded-lg border border-dashed border-border py-12 text-center flex flex-col justify-center items-center">
+        <FolderX className="text-muted-strong size-15" />
         <p className="text-sm text-muted">No shares configured yet</p>
       </div>
     );

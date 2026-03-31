@@ -8,16 +8,12 @@ import type { ShareMap } from "@/models/samba";
 import { motion, AnimatePresence } from "motion/react";
 import { useAppSecret } from "@/hooks/useAppSecret";
 import { api } from "@/utils/server/apiClient";
+import { ServerError } from "@/utils/server/serverResponse";
+import { capital } from "@/utils/manipulate/string";
 
 type ConfigRow = { key: string; value: string };
 
-/**
- * Editor for the [global] section of smb.conf.
- * Both GET and PUT /samba/config require app_secret (no caching).
- *
- * Desktop layout: | key | = | value | × |  (single row)
- * Mobile layout:  stacked card per entry   (matches mock-up style)
- */
+// not using context because config should be uncontrolled state
 export function SambaConfigEditor() {
   const [rows, setRows] = useState<ConfigRow[]>([]);
   const [original, setOriginal] = useState<ConfigRow[]>([]);
@@ -27,7 +23,8 @@ export function SambaConfigEditor() {
 
   const { prompt, getSecret, submitPrompt, cancelPrompt } = useAppSecret();
 
-  // ── Load config on mount ──────────────────────────────────────────────────
+  const toConfigRows = (data: Record<string, string>) => Object.entries(data).map(([key, value]) => ({ key, value }));
+
   const fetchConfig = async () => {
     setLoading(true);
     try {
@@ -36,13 +33,14 @@ export function SambaConfigEditor() {
 
       const res = await api.get("/samba/config", {
         header: { "X-APP-SECRET": secret },
+        skipCamelize: true,
       });
-      const parsed = Object.entries(res.data).map(([key, value]) => ({ key, value }));
+      const parsed = toConfigRows(res.data);
       setRows(parsed);
       setOriginal(parsed);
       setLoaded(true);
-    } catch (err: any) {
-      toast.error(err?.status === 403 ? "Invalid app secret" : "Failed to load global config");
+    } catch (err) {
+      toast.error(err instanceof ServerError ? capital(err.getMessage()) : "Failed to load global config");
     } finally {
       setLoading(false);
     }
@@ -55,12 +53,20 @@ export function SambaConfigEditor() {
   const addRow = () => setRows((p) => [...p, { key: "", value: "" }]);
   const removeRow = (i: number) => setRows((p) => p.filter((_, idx) => idx !== i));
   const updateRow = (i: number, field: "key" | "value", val: string) => setRows((p) => p.map((r, idx) => (idx === i ? { ...r, [field]: val } : r)));
+  const keyHasDuplicates = (rows: ConfigRow[]) => {
+    const uniqueKeys = new Set(rows.map((item) => item.key));
+    return uniqueKeys.size !== rows.length;
+  };
 
   const handleCancel = () => setRows(original);
 
   const handleSave = async () => {
     if (rows.some((r) => r.key.trim() === "")) {
       toast.error("All keys must be non-empty. Remove blank rows first.");
+      return;
+    }
+    if (keyHasDuplicates(rows)) {
+      toast.error("All keys must be unique.");
       return;
     }
     const data: ShareMap = {};
@@ -71,11 +77,12 @@ export function SambaConfigEditor() {
       const secret = await getSecret();
       if (!secret) return;
 
-      await api.put("/samba/config", { data, header: { "X-APP-SECRET": secret } });
-      setOriginal(rows);
+      const config = await api.put("/samba/config", { data, header: { "X-APP-SECRET": secret }, skipCamelize: true });
+      setRows(toConfigRows(config.data));
+      setOriginal(toConfigRows(config.data));
       toast.success("Global config saved");
-    } catch (err: any) {
-      toast.error(err?.status === 403 ? "Invalid app secret" : (err?.data?.message ?? "Failed to save config"));
+    } catch (err) {
+      toast.error(err instanceof ServerError ? capital(err.getMessage()) : "Failed to save config");
     } finally {
       setSaving(false);
     }
@@ -83,7 +90,6 @@ export function SambaConfigEditor() {
 
   const isDirty = JSON.stringify(rows) !== JSON.stringify(original);
 
-  // ── Shared input className ────────────────────────────────────────────────
   const inputCls =
     "h-8 rounded-md border border-border-sub bg-surface px-2.5 font-mono text-xs text-fg placeholder:text-muted-strong focus:outline-none focus:border-border-drag transition-colors w-full";
 

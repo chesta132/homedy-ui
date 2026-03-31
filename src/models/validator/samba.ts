@@ -21,9 +21,9 @@ export abstract class SambaValidator {
   };
 
   static readonly BODY = {
-    createShare: z.object({ name: this.TEMPLATE.shareName }).and(this.MODEL.share),
+    createShare: z.object({ name: this.TEMPLATE.shareName, ...this.MODEL.share.shape }),
 
-    updateShare: z.object({ name: this.TEMPLATE.shareName }).and(this.MODEL.share),
+    updateShare: z.object({ name: this.TEMPLATE.shareName, ...this.MODEL.share.shape }),
 
     deleteShare: z.object({
       name: this.TEMPLATE.shareName,

@@ -3,7 +3,7 @@ import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-interface PermissionInputProps {
+export interface PermissionInputProps {
   value: number[];
   onChange: (perms: number[]) => void;
   error?: string;
