@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_BACKEND_PROXY,
           changeOrigin: true,
           cookieDomainRewrite: "localhost",
+          ws: true,
         },
       },
     },

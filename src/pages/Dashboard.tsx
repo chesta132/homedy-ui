@@ -1,4 +1,4 @@
-import { FolderOpen, Lock, type LucideProps } from "lucide-react";
+import { FolderOpen, Lock, Terminal, type LucideProps } from "lucide-react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -19,13 +19,13 @@ const QUICK_LINKS = [
     icon: FolderOpen,
     available: true,
   },
-  // {
-  //   name: "Terminal",
-  //   desc: "Access system terminal over WebSocket",
-  //   href: "/terminal",
-  //   icon: Terminal,
-  //   available: true,
-  // },
+  {
+    name: "Terminal",
+    desc: "Access system terminal over WebSocket",
+    href: "/terminal",
+    icon: Terminal,
+    available: true,
+  },
   // {
   //   name: "Converter",
   //   desc: "Convert files between formats",

@@ -10,6 +10,7 @@ import { FileSharingProvider } from "./contexts/FileSharingContext";
 import { AuthGuard, UnauthGuard } from "./components/layout/auth/Guard";
 import { FileSharingPage } from "./pages/FileSharing";
 import { Toaster } from "./components/ui/toaster";
+import { TerminalPage } from "./pages/TerminalPage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                 <Route element={<DashboardLayout />}>
                   <Route path="/" index element={<DashboardPage />} />
                   <Route path="/file-sharing" index element={<FileSharingPage />} />
+                  <Route path="/terminal" index element={<TerminalPage />} />
                 </Route>
               </Route>
 
