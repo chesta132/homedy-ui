@@ -27,11 +27,10 @@ export const AuthGuard = ({ unauthRedirect }: { unauthRedirect: string }) => {
       try {
         await ensureMyUser();
       } catch (err) {
-        if (isUnauthorizedErr(err)) {
-          navigate(unauthRedirect, { state: { ensureUnauth: false } });
-          return;
+        if (!isUnauthorizedErr(err)) {
+          handleError(err, setError);
         }
-        handleError(err, setError);
+        navigate(unauthRedirect, { state: { ensureUnauth: false } });
       } finally {
         setLoading(false);
       }
@@ -39,9 +38,7 @@ export const AuthGuard = ({ unauthRedirect }: { unauthRedirect: string }) => {
   }, []);
 
   if (loading) {
-    return (
-      <Loading fullScreen />
-    );
+    return <Loading fullScreen />;
   }
 
   return <Outlet />;
