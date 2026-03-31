@@ -45,7 +45,7 @@ export const FileSharingProvider = ({ children }: { children: ReactNode }) => {
     if (Object.keys(shares).length === 0) {
       await refreshShares();
     }
-  }, []);
+  }, [shares]);
 
   const backup = useCallback(async () => {
     setBackingUp(true);

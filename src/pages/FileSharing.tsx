@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/ui/loading";
-import { Download, FolderOpen, Plus, Settings2, Upload } from "lucide-react";
+import { Download, FolderOpen, Plus, RefreshCcw, Settings2, Upload } from "lucide-react";
 import type { Share } from "@/models/samba";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,7 @@ export const FileSharingPage = () => {
     loading,
     shares,
     ensureShares,
+    refreshShares,
     appSecret: { prompt, cancelPrompt, submitPrompt },
   } = useFileSharing();
 
@@ -66,12 +67,12 @@ export const FileSharingPage = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="shares">
-        <TabsList>
-          <TabsTrigger value="shares" className="gap-2 cursor-pointer">
+        <TabsList className="w-full md:w-auto">
+          <TabsTrigger value="shares" className="gap-2 cursor-pointer w-1/2">
             <FolderOpen className="size-3.5" />
             Shares
           </TabsTrigger>
-          <TabsTrigger value="config" className="gap-2 cursor-pointer">
+          <TabsTrigger value="config" className="gap-2 cursor-pointer w-1/2">
             <Settings2 className="size-3.5" />
             Global Config
           </TabsTrigger>
@@ -87,10 +88,16 @@ export const FileSharingPage = () => {
                   {shareCount} {shareCount === 1 ? "share" : "shares"} configured
                 </CardDescription>
               </div>
-              <Button size="sm" onClick={openCreate}>
-                <Plus className="mr-1.5 size-3.5" />
-                Create Share
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" variant={'outline'} onClick={refreshShares}>
+                  <RefreshCcw className="mr-1.5 size-3.5" />
+                  Refresh
+                </Button>
+                <Button size="sm" onClick={openCreate}>
+                  <Plus className="mr-1.5 size-3.5" />
+                  Create Share
+                </Button>
+              </div>
             </CardHeader>
 
             <CardContent className="p-0">
