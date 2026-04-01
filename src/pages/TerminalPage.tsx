@@ -60,8 +60,8 @@ export function TerminalPage() {
     if (!secret) return;
     setStatus("connecting");
 
-    const url = getWsUrl(secret);
-    const ws = new WebSocket(url);
+    const url = getWsUrl();
+    const ws = new WebSocket(url, ["app-secret", secret]);
     ws.binaryType = "arraybuffer";
     wsRef.current = ws;
 

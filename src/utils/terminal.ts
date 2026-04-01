@@ -16,10 +16,10 @@ function createURL(path: string) {
   }
 }
 
-export function getWsUrl(secret: string): string {
+export function getWsUrl(): string {
   const url = createURL(VITE_BACKEND_URL!);
   const proto = url.protocol === "https:" ? "wss:" : "ws:";
-  return `${proto}//${url.host}${url.pathname}/ws/terminal?app_secret=${encodeURIComponent(secret)}`;
+  return `${proto}//${url.host}${url.pathname}/ws/terminal`;
 }
 
 export type InitiateXtermRefs = {
