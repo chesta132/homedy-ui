@@ -24,6 +24,8 @@ export default defineConfig(({ mode }) => {
           ws: true,
         },
       },
+      port: 5000,
+      host: true
     },
   };
 });
