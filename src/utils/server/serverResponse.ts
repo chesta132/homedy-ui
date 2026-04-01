@@ -1,5 +1,6 @@
 import type { ErrorResponse, Pagination, Response } from "@/types/server";
 import type { AxiosError, AxiosResponse } from "axios";
+import { capital } from "../manipulate/string";
 
 export class ServerError {
   // AxiosError<any> because response props replaced to non undefined
@@ -20,8 +21,9 @@ export class ServerError {
     return this.data.code;
   }
 
-  getMessage() {
-    return this.data.message;
+  getMessage({ skipCapital = false } = {}) {
+    if (skipCapital) return this.data.message;
+    else return capital(this.data.message);
   }
 
   getFields() {

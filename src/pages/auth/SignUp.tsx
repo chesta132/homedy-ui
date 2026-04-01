@@ -118,7 +118,7 @@ const SubmittedUI = ({ data }: { data: Submitted }) => (
     </div>
     <p className="mt-6 text-xs text-muted">You'll receive an email at this address once the owner reviews your request.</p>
     <div className="mt-6 space-y-3">
-      <Link to="/signup/approval">
+      <Link to="/signup/approval-status">
         <Button className="w-full h-10">Check request status</Button>
       </Link>
       <p className="text-center text-sm text-dim">

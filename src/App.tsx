@@ -13,6 +13,8 @@ import { Toaster } from "./components/ui/toaster";
 import { TerminalPage } from "./pages/TerminalPage";
 import { ConvertPage } from "./pages/ConvertPage";
 import { ConvertProvider } from "./contexts/ConvertContext";
+import { SignUpApprovalPage } from "./pages/auth/ApprovalPage";
+import { SignUpReviewApprovalPage } from "./pages/auth/ReviewApprovalPage";
 
 function App() {
   return (
@@ -41,6 +43,8 @@ function App() {
                 </Route>
 
                 {/* debug */}
+                <Route path="/signup/approval-status" element={<SignUpApprovalPage />} />
+                <Route path="/signup/review-approval" element={<SignUpReviewApprovalPage />} />
                 <Route path="*" element={<SignUpPage />} />
               </Routes>
             </ConvertProvider>
