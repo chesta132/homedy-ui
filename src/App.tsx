@@ -1,5 +1,5 @@
 import "./assets/styles/main.css";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { ErrorProvider } from "./contexts/ErrorContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SignUpPage } from "./pages/auth/SignUp";
@@ -44,10 +44,11 @@ function App() {
                     </Route>
                   </Route>
 
-                  {/* debug */}
                   <Route path="/signup/approval-status" element={<SignUpApprovalPage />} />
                   <Route path="/signup/review-approval" element={<SignUpReviewApprovalPage />} />
-                  <Route path="*" element={<SignUpPage />} />
+
+                  {/* TODO: change to not found page */}
+                  <Route path="*" element={<Navigate to={"/"} />} />
                 </Routes>
               </NoteProvider>
             </ConvertProvider>
