@@ -21,7 +21,6 @@ export abstract class NoteValidator {
   static readonly BODY = {
     createOne: z.object({ title: z.string(), content: z.string(), visibility: this.TEMPLATE.visibility }),
     updateOne: z.object({
-      id: this.MODEL.note.shape.id,
       // optional fields set non optional here for simplify
       title: z.string(),
       content: z.string(),
@@ -37,8 +36,12 @@ export abstract class NoteValidator {
 
   static readonly QUERY = {
     getMany: z.object({
-      offset: z.number().min(0, "Min offset is 0"),
-      recycled: z.boolean(),
+      offset: z.number().min(0, "Min offset is 0").optional(),
+      recycled: z.boolean().optional(),
+      sort: BaseValidator.TEMPLATE.sort.optional(),
+    }),
+    restoreMany: z.object({
+      sort: BaseValidator.TEMPLATE.sort.optional(),
     }),
   };
 

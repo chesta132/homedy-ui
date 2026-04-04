@@ -15,6 +15,7 @@ import { ConvertPage } from "./pages/ConvertPage";
 import { ConvertProvider } from "./contexts/ConvertContext";
 import { SignUpApprovalPage } from "./pages/auth/ApprovalPage";
 import { SignUpReviewApprovalPage } from "./pages/auth/ReviewApprovalPage";
+import { NoteProvider } from "./contexts/NoteContext";
 
 function App() {
   return (
@@ -23,30 +24,32 @@ function App() {
         <AuthProvider>
           <FileSharingProvider>
             <ConvertProvider>
-              <Routes>
-                {/* guest only */}
-                <Route element={<UnauthGuard authRedirect="/" />}>
-                  {/* auth */}
-                  <Route path="/signup" element={<SignUpPage />} />
-                  <Route path="/signin" element={<SignInPage />} />
-                </Route>
-
-                {/* protected */}
-                <Route element={<AuthGuard unauthRedirect="/signin" />}>
-                  {/* dashboard */}
-                  <Route element={<DashboardLayout />}>
-                    <Route path="/" index element={<DashboardPage />} />
-                    <Route path="/file-sharing" element={<FileSharingPage />} />
-                    <Route path="/terminal" element={<TerminalPage />} />
-                    <Route path="/convert" element={<ConvertPage />} />
+              <NoteProvider>
+                <Routes>
+                  {/* guest only */}
+                  <Route element={<UnauthGuard authRedirect="/" />}>
+                    {/* auth */}
+                    <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/signin" element={<SignInPage />} />
                   </Route>
-                </Route>
 
-                {/* debug */}
-                <Route path="/signup/approval-status" element={<SignUpApprovalPage />} />
-                <Route path="/signup/review-approval" element={<SignUpReviewApprovalPage />} />
-                <Route path="*" element={<SignUpPage />} />
-              </Routes>
+                  {/* protected */}
+                  <Route element={<AuthGuard unauthRedirect="/signin" />}>
+                    {/* dashboard */}
+                    <Route element={<DashboardLayout />}>
+                      <Route path="/" index element={<DashboardPage />} />
+                      <Route path="/file-sharing" element={<FileSharingPage />} />
+                      <Route path="/terminal" element={<TerminalPage />} />
+                      <Route path="/convert" element={<ConvertPage />} />
+                    </Route>
+                  </Route>
+
+                  {/* debug */}
+                  <Route path="/signup/approval-status" element={<SignUpApprovalPage />} />
+                  <Route path="/signup/review-approval" element={<SignUpReviewApprovalPage />} />
+                  <Route path="*" element={<SignUpPage />} />
+                </Routes>
+              </NoteProvider>
             </ConvertProvider>
           </FileSharingProvider>
         </AuthProvider>

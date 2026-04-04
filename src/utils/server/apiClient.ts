@@ -1,11 +1,15 @@
 import { isProdEnv, VITE_BACKEND_URL } from "@/config";
 import { pick } from "../manipulate/object";
 import type { EndpointsType } from "./endpoints";
-import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse,  } from "axios";
+import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 import { ServerError, ServerSuccess } from "./serverResponse";
 import type { Response } from "@/types/server";
 
-type OptionalField<K extends string, V> = [undefined] extends [V] ? Partial<Record<K, V>> : Record<K, V>;
+type OptionalField<K extends string, V> = [undefined] extends [V]
+  ? Partial<Record<K, V>>
+  : [Partial<V>] extends [V]
+    ? Partial<Record<K, V>>
+    : Record<K, V>;
 type Get = EndpointsType["GET"];
 type Put = EndpointsType["PUT"];
 type Post = EndpointsType["POST"];

@@ -15,4 +15,8 @@ export abstract class BaseValidator {
   static readonly HEADERS = {
     appSecret: z.object({ "X-APP-SECRET": z.string() }),
   };
+
+  static readonly TEMPLATE = {
+    sort: z.enum(["asc", "desc"], "Invalid enum, must be 'asc' or 'desc'"),
+  };
 }
