@@ -1,4 +1,4 @@
-import { FileOutput, FolderOpen, Lock, Terminal, type LucideProps } from "lucide-react";
+import { FileOutput, FolderOpen, Lock, StickyNote, Terminal, type LucideProps } from "lucide-react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -33,11 +33,18 @@ const QUICK_LINKS = [
     icon: FileOutput,
     available: true,
   },
+  {
+    name: "Notes",
+    desc: "Save notes over devices",
+    href: "/notes",
+    icon: StickyNote,
+    available: true,
+  },
 ] satisfies QickLink[];
 
 export const DashboardPage = () => {
   return (
-    <div className="space-y-6">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-fg">Dashboard</h1>
         <p className="mt-1 text-sm text-dim">Welcome to Homedy</p>
@@ -75,6 +82,6 @@ export const DashboardPage = () => {
       <div className="rounded-lg border border-dashed border-border p-6 text-center">
         <p className="text-sm text-muted">More features coming soon</p>
       </div>
-    </div>
+    </motion.div>
   );
 };

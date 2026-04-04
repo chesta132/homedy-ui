@@ -32,11 +32,11 @@ const NAV_ITEMS: NavItem[] = [
   { name: "File Sharing", href: "/file-sharing", icon: FolderOpen },
   { name: "Terminal", href: "/terminal", icon: Terminal },
   { name: "Converter", href: "/convert", icon: FileText },
+  { name: "Notes", href: "/notes", icon: StickyNote },
   { name: "Chat", href: "#", icon: MessageSquare, comingSoon: true },
   { name: "DNS", href: "#", icon: Globe, comingSoon: true },
   { name: "Port Forward", href: "#", icon: ArrowRightLeft, comingSoon: true },
   { name: "Todo", href: "#", icon: CheckSquare, comingSoon: true },
-  { name: "Notes", href: "#", icon: StickyNote, comingSoon: true },
   { name: "Finance", href: "#", icon: DollarSign, comingSoon: true },
 ];
 
