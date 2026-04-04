@@ -16,6 +16,8 @@ import { ConvertProvider } from "./contexts/ConvertContext";
 import { SignUpApprovalPage } from "./pages/auth/ApprovalPage";
 import { SignUpReviewApprovalPage } from "./pages/auth/ReviewApprovalPage";
 import { NoteProvider } from "./contexts/NoteContext";
+import { NoteListPage } from "./pages/note/NoteListPage";
+import { NoteActionProvider } from "./contexts/NoteActionContext";
 
 function App() {
   return (
@@ -25,31 +27,34 @@ function App() {
           <FileSharingProvider>
             <ConvertProvider>
               <NoteProvider>
-                <Routes>
-                  {/* guest only */}
-                  <Route element={<UnauthGuard authRedirect="/" />}>
-                    {/* auth */}
-                    <Route path="/signup" element={<SignUpPage />} />
-                    <Route path="/signin" element={<SignInPage />} />
-                  </Route>
-
-                  {/* protected */}
-                  <Route element={<AuthGuard unauthRedirect="/signin" />}>
-                    {/* dashboard */}
-                    <Route element={<DashboardLayout />}>
-                      <Route path="/" index element={<DashboardPage />} />
-                      <Route path="/file-sharing" element={<FileSharingPage />} />
-                      <Route path="/terminal" element={<TerminalPage />} />
-                      <Route path="/convert" element={<ConvertPage />} />
+                <NoteActionProvider>
+                  <Routes>
+                    {/* guest only */}
+                    <Route element={<UnauthGuard authRedirect="/" />}>
+                      {/* auth */}
+                      <Route path="/signup" element={<SignUpPage />} />
+                      <Route path="/signin" element={<SignInPage />} />
                     </Route>
-                  </Route>
 
-                  <Route path="/signup/approval-status" element={<SignUpApprovalPage />} />
-                  <Route path="/signup/review-approval" element={<SignUpReviewApprovalPage />} />
+                    {/* protected */}
+                    <Route element={<AuthGuard unauthRedirect="/signin" />}>
+                      {/* dashboard */}
+                      <Route element={<DashboardLayout />}>
+                        <Route path="/" index element={<DashboardPage />} />
+                        <Route path="/file-sharing" element={<FileSharingPage />} />
+                        <Route path="/terminal" element={<TerminalPage />} />
+                        <Route path="/convert" element={<ConvertPage />} />
+                        <Route path="/notes" element={<NoteListPage />} />
+                      </Route>
+                    </Route>
 
-                  {/* TODO: change to not found page */}
-                  <Route path="*" element={<Navigate to={"/"} />} />
-                </Routes>
+                    <Route path="/signup/approval-status" element={<SignUpApprovalPage />} />
+                    <Route path="/signup/review-approval" element={<SignUpReviewApprovalPage />} />
+
+                    {/* TODO: change to not found page */}
+                    <Route path="*" element={<Navigate to={"/"} />} />
+                  </Routes>
+                </NoteActionProvider>
               </NoteProvider>
             </ConvertProvider>
           </FileSharingProvider>
