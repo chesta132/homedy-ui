@@ -16,6 +16,7 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
   const { ensureNotes, refreshNotes, restoreOne } = useNoteAction();
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  // TODO: use deleteTarget to delete with confirmation
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <PageTitle pageTitle="Notes" subtitle={"Save notes over devices"} />
         <div className="flex items-center gap-2">

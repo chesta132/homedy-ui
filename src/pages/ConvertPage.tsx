@@ -5,6 +5,7 @@ import { FileRow, FileMobileCard } from "@/components/converter/FileRow";
 import { UploadRow, UploadButton } from "@/components/converter/UploadRow";
 import { ConvertValidator } from "@/models/validator/convert";
 import { useConvert } from "@/contexts/ConvertContext";
+import { PageTitle } from "@/components/ui/header";
 
 export function ConvertPage() {
   const { addFiles, batchLoading, entries, handleBatch, handleSingle, removeEntry, setConvertTo } = useConvert();
@@ -13,12 +14,9 @@ export function ConvertPage() {
   const hasEntries = entries.length > 0;
 
   return (
-    <div className="space-y-6">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold text-fg">Converter</h1>
-        <p className="mt-1 text-sm text-dim">Convert files between formats</p>
-      </div>
+      <PageTitle pageTitle="Converter" subtitle="Convert files between formats" />
 
       {/* Desktop layout */}
       <div className="hidden sm:block space-y-2">
@@ -59,6 +57,6 @@ export function ConvertPage() {
           <p className="text-sm text-muted-strong">Supported: {ConvertValidator.ACCEPTED_EXTS.map((e) => `.${e}`).join(", ")}</p>
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

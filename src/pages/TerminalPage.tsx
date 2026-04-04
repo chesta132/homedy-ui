@@ -8,6 +8,7 @@ import "@xterm/xterm/css/xterm.css";
 import { getWsUrl, initiateXterm, sendResize } from "@/utils/terminal";
 import { useAppSecret } from "@/hooks/useAppSecret";
 import { AppSecretModal } from "@/components/ui/app-secret-modal";
+import { PageTitle } from "@/components/ui/header";
 
 const XTERM_THEME = {
   background: "#0a0a0a",
@@ -124,81 +125,84 @@ export function TerminalPage() {
   const isConnecting = status === "connecting";
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-0">
-      <div className="flex h-10 items-center gap-3 rounded-t-lg border border-border bg-[#0f0f0f] px-3.5">
-        {/* macOS traffic lights */}
-        <div className="flex gap-1.5 shrink-0">
-          <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-          <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-          <div className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-        </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      <PageTitle pageTitle="Terminal" subtitle="Remote your server from Homedy" />
+      <div>
+        <div className="flex h-10 items-center gap-3 rounded-t-lg border border-border bg-[#0f0f0f] px-3.5">
+          {/* macOS traffic lights */}
+          <div className="flex gap-1.5 shrink-0">
+            <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+            <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+            <div className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+          </div>
 
-        <div className="flex flex-1 items-center justify-center gap-2">
-          <span className="text-2xs font-bold uppercase tracking-widest text-muted">terminal</span>
-          <div className={cn("flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-2xs transition-all", badgeClass[status])}>
-            <div className={cn("h-1.5 w-1.5 rounded-full bg-current", isConnected && "animate-pulse")} />
-            {badgeLabel[status]}
+          <div className="flex flex-1 items-center justify-center gap-2">
+            <span className="text-2xs font-bold uppercase tracking-widest text-muted">terminal</span>
+            <div className={cn("flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-2xs transition-all", badgeClass[status])}>
+              <div className={cn("h-1.5 w-1.5 rounded-full bg-current", isConnected && "animate-pulse")} />
+              {badgeLabel[status]}
+            </div>
+          </div>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={isConnected ? disconnect : connect}
+              disabled={isConnecting}
+              className={cn(
+                "cursor-pointer rounded px-2 py-0.5 text-2xs text-dim hover:text-dg disabled:opacity-40 transition-colors",
+                isConnected && "hover:text-red-400",
+              )}
+            >
+              {isConnected ? "Disconnect" : "Connect"}
+            </button>
+            <button
+              onClick={() => termRef.current?.clear()}
+              className="cursor-pointer rounded px-2 py-0.5 text-2xs text-muted hover:text-subtle transition-colors"
+            >
+              Clear
+            </button>
           </div>
         </div>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={isConnected ? disconnect : connect}
-            disabled={isConnecting}
-            className={cn(
-              "cursor-pointer rounded px-2 py-0.5 text-2xs text-dim hover:text-dg disabled:opacity-40 transition-colors",
-              isConnected && "hover:text-red-400",
+        {/* ── xterm area ─────────────────────────────────────────────────────── */}
+        <div className="relative border-x border-border bg-base">
+          <div ref={containerRef} className="h-105 w-full p-1" />
+
+          {/* Overlays */}
+          <AnimatePresence>
+            {/* Idle / error overlay when not connected and no modal */}
+            {!isConnected && !isConnecting && (
+              <motion.div
+                key="idle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-base/90"
+              >
+                <p className="text-xs text-muted">
+                  {status === "error" ? "connection failed — " : "not connected — "}
+                  <button onClick={connect} className="cursor-pointer text-subtle underline underline-offset-2 hover:text-dg">
+                    {status === "error" ? "retry" : "connect"}
+                  </button>
+                </p>
+              </motion.div>
             )}
-          >
-            {isConnected ? "Disconnect" : "Connect"}
-          </button>
-          <button
-            onClick={() => termRef.current?.clear()}
-            className="cursor-pointer rounded px-2 py-0.5 text-2xs text-muted hover:text-subtle transition-colors"
-          >
-            Clear
-          </button>
+
+            {/* Connecting spinner */}
+            {isConnecting && (
+              <motion.div
+                key="connecting"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex items-center justify-center bg-base/80"
+              >
+                <Loader2 className="h-4 w-4 animate-spin text-muted-strong" />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
-
-      {/* ── xterm area ─────────────────────────────────────────────────────── */}
-      <div className="relative border-x border-border bg-base">
-        <div ref={containerRef} className="h-105 w-full p-1" />
-
-        {/* Overlays */}
-        <AnimatePresence>
-          {/* Idle / error overlay when not connected and no modal */}
-          {!isConnected && !isConnecting && (
-            <motion.div
-              key="idle"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-base/90"
-            >
-              <p className="text-xs text-muted">
-                {status === "error" ? "connection failed — " : "not connected — "}
-                <button onClick={connect} className="cursor-pointer text-subtle underline underline-offset-2 hover:text-dg">
-                  {status === "error" ? "retry" : "connect"}
-                </button>
-              </p>
-            </motion.div>
-          )}
-
-          {/* Connecting spinner */}
-          {isConnecting && (
-            <motion.div
-              key="connecting"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center bg-base/80"
-            >
-              <Loader2 className="h-4 w-4 animate-spin text-muted-strong" />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
       <AppSecretModal onCancel={cancelPrompt} onSubmit={submitPrompt} open={prompt} />
     </motion.div>

@@ -12,6 +12,7 @@ import { SambaConfigEditor } from "@/components/file-sharing/SambaConfigEditor";
 import { ShareForm } from "@/components/file-sharing/ShareForm";
 import { DeleteShareDialog } from "@/components/file-sharing/DeleteShareDialog";
 import { AppSecretModal } from "@/components/ui/app-secret-modal";
+import { PageTitle } from "@/components/ui/header";
 
 type FormMode = { type: "create"; isOpen: boolean } | { type: "edit"; name: string; share: Share; isOpen: boolean };
 
@@ -46,13 +47,10 @@ export const FileSharingPage = () => {
 
   const shareCount = Object.keys(shares).length;
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       {/* Page header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-fg">File Sharing</h1>
-          <p className="mt-0.5 text-sm text-dim">Manage SMB/CIFS network shares</p>
-        </div>
+        <PageTitle pageTitle="File Sharing" subtitle="Manage SMB/CIFS network shares" />
         <div className="flex items-center gap-2 text-subtle">
           <Button variant="outline" size="sm" onClick={backup} disabled={backingUp} className="flex-1 sm:flex-none bg-transparent">
             {backingUp ? <Loading className="mr-2 size-3.5" /> : <Download className="mr-2 size-3.5" />}
@@ -89,7 +87,7 @@ export const FileSharingPage = () => {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant={'outline'} onClick={refreshShares}>
+                <Button size="sm" variant={"outline"} onClick={refreshShares}>
                   <RefreshCcw className="mr-1.5 size-3.5" />
                   Refresh
                 </Button>

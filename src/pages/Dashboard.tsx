@@ -2,6 +2,8 @@ import { FileOutput, FolderOpen, Lock, StickyNote, Terminal, type LucideProps } 
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { PageTitle } from "@/components/ui/header";
+import { useAuth } from "@/contexts/AuthContext";
 
 type QickLink = {
   name: string;
@@ -43,12 +45,11 @@ const QUICK_LINKS = [
 ] satisfies QickLink[];
 
 export const DashboardPage = () => {
+  const { user } = useAuth();
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-fg">Dashboard</h1>
-        <p className="mt-1 text-sm text-dim">Welcome to Homedy</p>
-      </div>
+      <PageTitle pageTitle="Dashboard" subtitle={`Welcome to dashboard${user && `, ${user.username}`}!`} />
 
       {/* Quick access cards */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
