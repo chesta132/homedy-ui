@@ -7,11 +7,10 @@ export abstract class BaseValidator {
     updatedAt: z.coerce.date(),
   });
 
-  static readonly baseRecyclable = z
-    .object({
-      deletedAt: z.coerce.date(),
-    })
-    .and(this.baseModel);
+  static readonly baseRecyclable = z.object({
+    deletedAt: z.coerce.date(),
+    ...this.baseModel.shape,
+  });
 
   static readonly HEADERS = {
     appSecret: z.object({ "X-APP-SECRET": z.string() }),

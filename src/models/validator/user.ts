@@ -18,12 +18,11 @@ export abstract class UserValidator {
   };
 
   static readonly MODEL = {
-    user: z
-      .object({
-        username: z.string().regex(this.REGEX.username, "Invalid username"),
-        email: z.email("Invalid email format"),
-        status: z.enum(["active", "pending"], "Invalid status"),
-      })
-      .and(BaseValidator.baseRecyclable),
+    user: z.object({
+      username: z.string().regex(this.REGEX.username, "Invalid username"),
+      email: z.email("Invalid email format"),
+      status: z.enum(["active", "pending"], "Invalid status"),
+      ...BaseValidator.baseRecyclable.shape,
+    }),
   };
 }
