@@ -1,6 +1,7 @@
 import { toast } from "@/components/ui/toaster";
 import { api } from "../server/apiClient";
 import { objToFormData } from "../manipulate/object";
+import type { ConvertPayload } from "@/models/convert";
 
 export interface FileEntry {
   id: string;
@@ -24,10 +25,8 @@ function triggerDownload(blob: Blob, filename: string) {
  */
 export async function convertSingle(entry: FileEntry) {
   const res = await api.post("/convert/single", {
-    // TODO: when camelize removed, remove as any
-    data: { convert_to: entry.convertTo, file: entry.file } as any,
+    data: { convertTo: entry.convertTo, file: entry.file },
     responseType: "blob",
-    skipCamelize: true,
     transformRequest: (data) => objToFormData(data),
   });
   const filename = res.getFilename() ?? "download";
@@ -40,15 +39,13 @@ export async function convertSingle(entry: FileEntry) {
  * Returns the zip filename.
  */
 export async function convertMultiple(entries: FileEntry[]) {
-  // TODO: when camelize removed, remove as any
-  const data = entries.reduce((acc, entry) => ({ files: [...acc.files, entry.file], convert_to: [...acc.convert_to, entry.convertTo] }), {
+  const data = entries.reduce((acc, entry) => ({ files: [...acc.files, entry.file], convertTo: [...acc.convertTo, entry.convertTo] }), {
     files: [],
-    convert_to: [],
-  } as any);
+    convertTo: [],
+  } as ConvertPayload.ConvertMultipleBody);
 
   const res = await api.post("/convert/multiple", {
     data,
-    skipCamelize: true,
     responseType: "blob",
     transformRequest: (data) => objToFormData(data),
   });

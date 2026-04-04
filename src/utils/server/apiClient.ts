@@ -1,10 +1,9 @@
 import { isProdEnv, VITE_BACKEND_URL } from "@/config";
 import { pick } from "../manipulate/object";
 import type { EndpointsType } from "./endpoints";
-import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
+import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse,  } from "axios";
 import { ServerError, ServerSuccess } from "./serverResponse";
 import type { Response } from "@/types/server";
-import { camelizeKeys, decamelizeKeys } from "humps";
 
 type OptionalField<K extends string, V> = [undefined] extends [V] ? Partial<Record<K, V>> : Record<K, V>;
 type Get = EndpointsType["GET"];
@@ -13,13 +12,11 @@ type Post = EndpointsType["POST"];
 type Delete = EndpointsType["DELETE"];
 type Patch = EndpointsType["PATCH"];
 
-type SkipCamelize = { skipCamelize?: boolean };
 export type ApiConfig<B = any, Q = any, P = any, H = any> = AxiosRequestConfig &
   OptionalField<"data", B> &
   OptionalField<"query", Q> &
   OptionalField<"param", P> &
-  OptionalField<"header", H> &
-  SkipCamelize;
+  OptionalField<"header", H>;
 
 export class ApiClient {
   private readonly api;
@@ -30,30 +27,15 @@ export class ApiClient {
       withCredentials: true,
     });
 
-    this.api.interceptors.request.use((req: InternalAxiosRequestConfig<any> & SkipCamelize) => {
-      if (req.data && !req.skipCamelize) {
-        req.data = decamelizeKeys(req.data);
+    this.api.interceptors.response.use(undefined, (error) => {
+      if (isProdEnv()) console.error("Error in API call:\n", error);
+      else console.error("Server request failed.\n", { ...pick(error, ["code", "message", "status"]), ...error?.response?.data?.data });
+      if (error.response?.data?.code === "CLIENT_REFRESH") {
+        location.reload();
+        return;
       }
-      return req;
+      return Promise.reject(error);
     });
-
-    this.api.interceptors.response.use(
-      (res: AxiosResponse & { config: ApiConfig }) => {
-        if (res.data && !res.config.skipCamelize) {
-          res.data = camelizeKeys(res.data);
-        }
-        return res;
-      },
-      (error) => {
-        if (isProdEnv()) console.error("Error in API call:\n", error);
-        else console.error("Server request failed.\n", { ...pick(error, ["code", "message", "status"]), ...error?.response?.data?.data });
-        if (error.response?.data?.code === "CLIENT_REFRESH") {
-          location.reload();
-          return;
-        }
-        return Promise.reject(error);
-      },
-    );
   }
 
   private async request<T>({ query, param, url, header, ...config }: ApiConfig): Promise<ServerSuccess<T>> {

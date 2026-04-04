@@ -33,7 +33,6 @@ export function SambaConfigEditor() {
 
       const res = await api.get("/samba/config", {
         header: { "X-APP-SECRET": secret },
-        skipCamelize: true,
       });
       const parsed = toConfigRows(res.data);
       setRows(parsed);
@@ -77,7 +76,7 @@ export function SambaConfigEditor() {
       const secret = await getSecret();
       if (!secret) return;
 
-      const config = await api.put("/samba/config", { data, header: { "X-APP-SECRET": secret }, skipCamelize: true });
+      const config = await api.put("/samba/config", { data, header: { "X-APP-SECRET": secret } });
       setRows(toConfigRows(config.data));
       setOriginal(toConfigRows(config.data));
       toast.success("Global config saved");
