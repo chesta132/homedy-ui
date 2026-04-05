@@ -1,5 +1,5 @@
 import { Loading } from "@/components/ui/loading";
-import { showToast } from "@/components/ui/toaster";
+import { toast } from "@/components/ui/toaster";
 import { useNoteAction } from "@/contexts/NoteActionContext";
 import { useNote } from "@/contexts/NoteContext";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +13,7 @@ import { FormLayout } from "@/components/form-layout/FormLayout";
 import { pick } from "@/utils/manipulate/object";
 import { useAuth } from "@/contexts/AuthContext";
 import { type NotePayload, type Note } from "@/models/note";
+import { ServerError } from "@/utils/server/serverResponse";
 
 const DEFAULT_NOTE: Note = {
   content: "",
@@ -65,7 +66,7 @@ export const NoteDetailsPage = () => {
           setForm(cleanNote);
           setDef(cleanNote);
         } catch (e) {
-          showToast.error(e);
+          toast.error(e instanceof ServerError ? e.getMessage() : "Failed to save note");
         }
       }
     })();
