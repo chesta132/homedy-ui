@@ -16,16 +16,17 @@ import { HomedyLogo } from "../ui/logo";
 import { api } from "@/utils/server/apiClient";
 
 export function Topbar() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
       await api.post("/auth/signout");
+      setUser(null);
     } catch {
       // Best-effort — redirect regardless
     }
-    navigate("/signin");
+    navigate("/signin", { state: { ensureUnauth: false } });
   };
 
   const initials = user?.username ? user.username.slice(0, 2).toUpperCase() : "-";
