@@ -15,6 +15,9 @@ export type NotePageState = {
 
   ensured: boolean;
   setEnsured: React.Dispatch<React.SetStateAction<boolean>>;
+
+  paginationLoading: boolean;
+  setPaginationLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type NoteContextValue = {
@@ -32,7 +35,8 @@ export const NoteProvider = ({ children }: { children: ReactNode }) => {
     const [pagination, setPagination] = useState<Pagination | null>(null);
     const [sort, setSort] = useState<Sort>("desc");
     const [ensured, setEnsured] = useState(false);
-    return { notes, setNotes, pagination, setPagination, sort, setSort, ensured, setEnsured };
+    const [paginationLoading, setPaginationLoading] = useState(false);
+    return { notes, setNotes, pagination, setPagination, sort, setSort, ensured, setEnsured, paginationLoading, setPaginationLoading };
   };
 
   const [loading, setLoading] = useState(false);

@@ -64,13 +64,13 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getNext: NoteActionContextValue["getNext"] = async (recycled = false, { skipLoading } = {}) => {
-    const { pagination, sort } = stateOfPage(recycled);
+    const { pagination, sort, setPaginationLoading } = stateOfPage(recycled);
     if (!pagination || pagination.hasNext) {
       try {
-        if (!skipLoading) setLoading(true);
-        return await fetchNotes({ offset: pagination?.current || 0, recycled, sort });
+        if (!skipLoading) setPaginationLoading(true);
+        return await fetchNotes({ offset: pagination?.next || 0, recycled, sort }, { skipLoading: true });
       } finally {
-        if (!skipLoading) setLoading(false);
+        if (!skipLoading) setPaginationLoading(false);
       }
     }
     return null;

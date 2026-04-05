@@ -78,7 +78,7 @@ export const NoteDetailsPage = () => {
         if (isCreatePage) {
           const note = await createOne(form, { skipLoading: true });
           setDef(form);
-          navigate(`/notes/${note.id}`);
+          navigate(`/notes/${note.id}`, { replace: true });
         } else {
           await updateOne(id, form, { skipLoading: true });
           setDef(form);
