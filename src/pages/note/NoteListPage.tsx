@@ -10,6 +10,7 @@ import { Link } from "react-router";
 import { NoteCard } from "@/components/notes/NoteCard";
 import { SelectNoteList } from "@/components/notes/SelectNoteList";
 import { cn } from "@/lib/utils";
+import { DeleteNoteDialog } from "@/components/notes/DeleteNoteDialog";
 
 export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => {
   const { exist, loading, trash } = useNote();
@@ -17,7 +18,6 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
   const { ensureNotes, refreshNotes, restoreOne } = useNoteAction();
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  // TODO: use deleteTarget to delete with confirmation
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   useEffect(() => {
@@ -111,6 +111,7 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
           ))}
         </div>
       )}
+      <DeleteNoteDialog open={!!deleteTarget} noteId={deleteTarget} onClose={() => setDeleteTarget(null)} />
     </motion.div>
   );
 };
