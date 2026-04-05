@@ -66,11 +66,12 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
             {loading ? <Loading className="mr-1.5 size-3.5" /> : <RefreshCcw className="mr-1.5 size-3.5" />}
             Refresh
           </Button>
-          {/* TODO: add interactive */}
-          <Button size="sm">
-            <Plus className="mr-1.5 size-3.5" />
-            New Note
-          </Button>
+          <Link to={"/notes/create"}>
+            <Button size="sm">
+              <Plus className="mr-1.5 size-3.5" />
+              New Note
+            </Button>
+          </Link>
         </div>
       </div>
 

@@ -18,6 +18,7 @@ import { SignUpReviewApprovalPage } from "./pages/auth/ReviewApprovalPage";
 import { NoteProvider } from "./contexts/NoteContext";
 import { NoteListPage } from "./pages/note/NoteListPage";
 import { NoteActionProvider } from "./contexts/NoteActionContext";
+import { NoteDetailsPage } from "./pages/note/NoteDetailsPage";
 
 function App() {
   return (
@@ -45,6 +46,9 @@ function App() {
                         <Route path="/terminal" element={<TerminalPage />} />
                         <Route path="/convert" element={<ConvertPage />} />
                         <Route path="/notes" element={<NoteListPage />} />
+                        <Route path="/notes/create" element={<NoteDetailsPage />} />
+                        <Route path="/notes/:id" element={<NoteDetailsPage />} />
+
                         {/* TODO: add TrashLayout */}
                         <Route path="/trash/notes" element={<NoteListPage trashPage />} />
                       </Route>

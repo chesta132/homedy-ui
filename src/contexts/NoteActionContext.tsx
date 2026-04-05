@@ -4,18 +4,20 @@ import { api } from "@/utils/server/apiClient";
 import { type Sort } from "@/models/base";
 import { useNote, type NotePageState } from "./NoteContext";
 
+type ActionOptions = { skipLoading?: boolean };
+
 type NoteActionContextValue = {
-  fetchNotes: (query?: NotePayload.GetNotesQuery) => Promise<Note[]>;
-  refreshNotes: (query?: NotePayload.GetNotesQuery) => Promise<Note[]>;
-  ensureNotes: (query?: NotePayload.GetNotesQuery) => Promise<Note[] | null>;
-  getNext: (recycled?: boolean) => Promise<Note[] | null>;
-  getOne: (id: string) => Promise<Note>;
-  createOne: (data: NotePayload.CreateNoteBody) => Promise<Note>;
-  updateOne: (id: string, data: NotePayload.UpdateNoteBody) => Promise<Note>;
-  deleteOne: (note: Note) => Promise<NotePayload.DeleteNoteResponse>;
-  deleteMany: (notes: Note[]) => Promise<NotePayload.DeleteNotesResponse>;
-  restoreOne: (id: string) => Promise<Note>;
-  restoreMany: (data: NotePayload.RestoreNotesBody, query?: NotePayload.RestoreNotesQuery) => Promise<Note[]>;
+  fetchNotes: (query?: NotePayload.GetNotesQuery, options?: ActionOptions) => Promise<Note[]>;
+  refreshNotes: (query?: NotePayload.GetNotesQuery, options?: ActionOptions) => Promise<Note[]>;
+  ensureNotes: (query?: NotePayload.GetNotesQuery, options?: ActionOptions) => Promise<Note[] | null>;
+  getNext: (recycled?: boolean, options?: ActionOptions) => Promise<Note[] | null>;
+  getOne: (id: string, options?: ActionOptions) => Promise<Note>;
+  createOne: (data: NotePayload.CreateNoteBody, options?: ActionOptions) => Promise<Note>;
+  updateOne: (id: string, data: NotePayload.UpdateNoteBody, options?: ActionOptions) => Promise<Note>;
+  deleteOne: (note: Note, options?: ActionOptions) => Promise<NotePayload.DeleteNoteResponse>;
+  deleteMany: (notes: Note[], options?: ActionOptions) => Promise<NotePayload.DeleteNotesResponse>;
+  restoreOne: (id: string, options?: ActionOptions) => Promise<Note>;
+  restoreMany: (data: NotePayload.RestoreNotesBody, query?: NotePayload.RestoreNotesQuery, options?: ActionOptions) => Promise<Note[]>;
 };
 
 const NoteActionContext = createContext<NoteActionContextValue | null>(null);
@@ -27,69 +29,69 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
   const ensureEnsured = ({ ensured, setEnsured }: NotePageState) => (!ensured && setEnsured(true)) || (undefined as void);
   const joinWithSortMode = (prev: Note[], next: Note[], sortMode: Sort) => (sortMode === "desc" ? [...next, ...prev] : [...prev, ...next]) as Note[];
 
-  const refreshNotes = async (query?: NotePayload.GetNotesQuery) => {
+  const refreshNotes: NoteActionContextValue["refreshNotes"] = async (query, { skipLoading } = {}) => {
     try {
       const state = stateOfPage(!!query?.recycled);
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const notes = await api.get("/notes", { query });
       state.setNotes(notes.data);
       ensureEnsured(state);
       state.setPagination(notes.getPagination());
       return notes.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
-  const fetchNotes = async (query?: NotePayload.GetNotesQuery) => {
+  const fetchNotes: NoteActionContextValue["fetchNotes"] = async (query, { skipLoading } = {}) => {
     try {
       const state = stateOfPage(!!query?.recycled);
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const notes = await api.get("/notes", { query });
       state.setNotes((prev) => [...prev, ...notes.data]);
       ensureEnsured(state);
       state.setPagination(notes.getPagination());
       return notes.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
-  const ensureNotes = async (query?: NotePayload.GetNotesQuery) => {
+  const ensureNotes: NoteActionContextValue["ensureNotes"] = async (query, opt) => {
     const { ensured } = stateOfPage(!!query?.recycled);
-    if (!ensured) return await refreshNotes(query);
+    if (!ensured) return await refreshNotes(query, opt);
     return null;
   };
 
-  const getNext = async (recycled = false) => {
+  const getNext: NoteActionContextValue["getNext"] = async (recycled = false, { skipLoading } = {}) => {
     const { pagination, sort } = stateOfPage(recycled);
     if (!pagination || pagination.hasNext) {
       try {
-        setLoading(true);
+        if (!skipLoading) setLoading(true);
         return await fetchNotes({ offset: pagination?.current || 0, recycled, sort });
       } finally {
-        setLoading(false);
+        if (!skipLoading) setLoading(false);
       }
     }
     return null;
   };
 
-  const getOne = async (id: string) => {
+  const getOne: NoteActionContextValue["getOne"] = async (id, { skipLoading } = {}) => {
     try {
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const note = exist.notes.find((note) => note.id === id);
       if (note) return note;
       const res = await api.get("/notes/{id}", { param: { id } });
       return res.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
-  const createOne = async (data: NotePayload.CreateNoteBody) => {
+  const createOne: NoteActionContextValue["createOne"] = async (data, { skipLoading } = {}) => {
     try {
       const { setNotes, pagination, setPagination, sort } = exist;
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const note = await api.post("/notes", { data });
       setNotes((prev) => {
         const next = joinWithSortMode(prev, [note.data], sort);
@@ -101,25 +103,25 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       ensureEnsured(exist);
       return note.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
-  const updateOne = async (id: string, data: NotePayload.UpdateNoteBody) => {
+  const updateOne: NoteActionContextValue["updateOne"] = async (id, data, { skipLoading } = {}) => {
     try {
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const note = await api.put("/notes/{id}", { data, param: { id } });
       exist.setNotes((prev) => prev.map((prevNote) => (prevNote.id === note.data.id ? note.data : prevNote)));
       return note.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
-  const deleteOne = async (note: Note) => {
+  const deleteOne: NoteActionContextValue["deleteOne"] = async (note, { skipLoading } = {}) => {
     try {
       const { id } = note;
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const res = await api.delete("/notes/{id}", { param: { id } });
       exist.setNotes((prev) => {
         const next = prev.filter((prevNote) => prevNote.id !== res.data.id);
@@ -138,13 +140,13 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       ensureEnsured(trash);
       return res.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
-  const deleteMany = async (notes: Note[]) => {
+  const deleteMany: NoteActionContextValue["deleteMany"] = async (notes, { skipLoading } = {}) => {
     try {
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const data = { ids: notes.map((n) => n.id) };
       const res = await api.delete("/notes", { data });
       exist.setNotes((prev) => {
@@ -163,13 +165,13 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       });
       return res.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
-  const restoreOne = async (id: string) => {
+  const restoreOne: NoteActionContextValue["restoreOne"] = async (id, { skipLoading } = {}) => {
     try {
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const note = await api.patch("/notes/restore/{id}", { param: { id } });
       exist.setNotes((prev) => {
         const next = joinWithSortMode(prev, [note.data], exist.sort);
@@ -189,13 +191,13 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       ensureEnsured(trash);
       return note.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
-  const restoreMany = async (data: NotePayload.RestoreNotesBody, { sort = exist.sort }: NotePayload.RestoreNotesQuery = {}) => {
+  const restoreMany: NoteActionContextValue["restoreMany"] = async (data, { sort = exist.sort } = {}, { skipLoading } = {}) => {
     try {
-      setLoading(true);
+      if (!skipLoading) setLoading(true);
       const notes = await api.patch("/notes/restore", { data, query: { sort } });
       exist.setNotes((prev) => {
         const next = joinWithSortMode(prev, notes.data, exist.sort);
@@ -215,7 +217,7 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       ensureEnsured(trash);
       return notes.data;
     } finally {
-      setLoading(false);
+      if (!skipLoading) setLoading(false);
     }
   };
 
