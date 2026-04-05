@@ -1,5 +1,7 @@
-import { Toaster as SonnerToaster, toast } from "sonner";
+import { ServerError } from "@/utils/server/serverResponse";
+import { Toaster as SonnerToaster, toast, type ExternalToast } from "sonner";
 
+/** @deprecated use showToast */
 export { toast };
 
 export function Toaster() {
@@ -16,3 +18,9 @@ export function Toaster() {
     />
   );
 }
+
+export const showToast = {
+  ...toast,
+  error: (e: unknown, d?: ExternalToast) =>
+    toast.error(e instanceof ServerError ? e.getMessage() : e instanceof Error ? e.message : "An error occured", d),
+};
