@@ -1,5 +1,5 @@
 import { useNote } from "@/contexts/NoteContext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { PageTitle } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
@@ -29,13 +29,13 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
   const allSelected = notes.length > 0 && selected.size === notes.length;
   const someSelected = selected.size > 0 && !allSelected;
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = useCallback((id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
-  };
+  }, []);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
@@ -100,7 +100,12 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {notes.map((note, i) => (
-              <motion.div key={note.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+              <motion.div
+                key={note.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(i * 0.04, 0.3) }}
+              >
                 <NoteCard
                   note={note}
                   trashMode={trashPage}

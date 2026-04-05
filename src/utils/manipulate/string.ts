@@ -229,3 +229,9 @@ export const isValidUrl = (str: string) => {
 export const currencyToNumber = (str: string) => {
   return Number(str.replace(/[^\d,-]/g, "").replace(",", "."));
 };
+
+export const stripHtml = (html: string) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};

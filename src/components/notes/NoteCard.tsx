@@ -6,9 +6,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from "@/lib/utils";
 import type { Note } from "@/models/note";
 import { Link } from "react-router";
-import { useRef } from "react";
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import { memo, useRef } from "react";
+import { stripHtml } from "@/utils/manipulate/string";
 
 interface NoteCardProps {
   note: Note;
@@ -20,11 +19,10 @@ interface NoteCardProps {
   someSelected: boolean;
 }
 
-export function NoteCard({ note, trashMode, selected, onToggleSelect, onDelete, onRestore, someSelected }: NoteCardProps) {
+export const NoteCard = memo(({ note, trashMode, selected, onToggleSelect, onDelete, onRestore, someSelected }: NoteCardProps) => {
   const isPrivate = note.visibility === "private";
   const holdRef = useRef(false);
   const inSelectMode = useRef(someSelected || selected);
-  const editor = useEditor({ extensions: [StarterKit], content: note.content });
 
   const handleTapStart = () => {
     inSelectMode.current = someSelected || selected;
@@ -97,7 +95,7 @@ export function NoteCard({ note, trashMode, selected, onToggleSelect, onDelete, 
         </div>
 
         {/* Content preview */}
-        <p className="text-xs text-dim line-clamp-3 whitespace-pre-wrap">{editor.getText()}</p>
+        <p className="text-xs text-dim line-clamp-3 whitespace-pre-wrap">{stripHtml(note.content)}</p>
 
         {/* Footer */}
         <p className="text-2xs text-muted-strong mt-1">
@@ -106,4 +104,4 @@ export function NoteCard({ note, trashMode, selected, onToggleSelect, onDelete, 
       </Link>
     </motion.div>
   );
-}
+});
