@@ -2,11 +2,11 @@ import { Loading } from "@/components/ui/loading";
 import { toast } from "@/components/ui/toaster";
 import { useNoteAction } from "@/contexts/NoteActionContext";
 import { useNote } from "@/contexts/NoteContext";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useForm } from "@/hooks/useForm";
 import { NoteValidator } from "@/models/validator/note";
 import { FormLayout } from "@/components/form-layout/FormLayout";
@@ -14,6 +14,9 @@ import { pick } from "@/utils/manipulate/object";
 import { useAuth } from "@/contexts/AuthContext";
 import { type NotePayload, type Note } from "@/models/note";
 import { ServerError } from "@/utils/server/serverResponse";
+import { CheckCircle2Icon, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ShareNoteDialog } from "@/components/notes/ShareNoteDialog";
 
 const DEFAULT_NOTE: Note = {
   content: "",
@@ -42,6 +45,8 @@ export const NoteDetailsPage = () => {
   const [def, setDef] = useState<NotePayload.CreateNoteBody | NotePayload.UpdateNoteBody>(
     pick(note || DEFAULT_NOTE, ["content", "title", "visibility"]),
   );
+  const [saveState, setSaveState] = useState({ loading: false, afterSave: false });
+  const [openShareDialog, setOpenShareDialog] = useState(false);
 
   const formGroup = useForm(def, isCreatePage ? NoteValidator.BODY.createOne : NoteValidator.BODY.updateOne);
   const {
@@ -72,9 +77,15 @@ export const NoteDetailsPage = () => {
     })();
   }, [note]);
 
-  const handleSubmit = async () => {
-    try {
-      if (!isOld) {
+  useEffect(() => {
+    const note = notes.find((n) => n.id === id);
+    if (note) setNote(note);
+  }, [notes]);
+
+  const handleSave = useCallback(async () => {
+    if (!isOld) {
+      try {
+        setSaveState({ afterSave: false, loading: true });
         if (isCreatePage) {
           const note = await createOne(form, { skipLoading: true });
           setDef(form);
@@ -83,19 +94,34 @@ export const NoteDetailsPage = () => {
           await updateOne(id, form, { skipLoading: true });
           setDef(form);
         }
+        setSaveState({ afterSave: true, loading: false });
+        setTimeout(() => {
+          setSaveState((prev) => ({ ...prev, afterSave: false }));
+        }, 1000);
+      } catch {
+        setSaveState({ afterSave: false, loading: false });
       }
-    } catch {
-      // skip err log
     }
-  };
+  }, [isCreatePage, isOld, form]);
+
+  useEffect(() => {
+    const saveShortcut = (e: KeyboardEvent) => {
+      if (e.key === "s" && e.ctrlKey) {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    document.addEventListener("keydown", saveShortcut);
+    return () => document.removeEventListener("keydown", saveShortcut);
+  }, [handleSave]);
 
   if (!note || loading) return <Loading fullScreen />;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <FormLayout form={formGroup} ref={formRef} onFormSubmit={handleSubmit}>
-        <div>
-          <div>
+      <FormLayout form={formGroup} ref={formRef} onFormSubmit={handleSave}>
+        <div className="flex justify-between">
+          <div className="w-2/3">
             <FormLayout.input
               readOnly={isCreatePage ? false : !isOwner}
               fieldId="title"
@@ -109,9 +135,26 @@ export const NoteDetailsPage = () => {
               <p>{editor.getText().replaceAll("\n", "").length} charachters</p>|<p>{form.visibility === "public" ? "Shared" : "Private"}</p>
             </div>
           </div>
+          <div className="flex gap-2 items-center">
+            <div className="flex gap-1 items-center text-subtle cursor-default">
+              {saveState.loading && <Loading />}
+              <AnimatePresence>
+                {saveState.afterSave && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                    <CheckCircle2Icon className="size-3.5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {!isCreatePage && <p className="text-xs">{isOld ? "Saved" : "Unsaved"}</p>}
+            </div>
+            <Button size={"sm"} variant={"outline"} onClick={() => setOpenShareDialog(true)}>
+              <Share2 className="size-4.5" />
+            </Button>
+          </div>
         </div>
         <FormLayout.richEditor editor={editor} fieldId="content" onBlur={() => formRef.current?.requestSubmit()} />
       </FormLayout>
+      <ShareNoteDialog note={note} onClose={() => setOpenShareDialog(false)} open={openShareDialog} />
     </motion.div>
   );
 };
