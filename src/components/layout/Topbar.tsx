@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { LogOut, User } from "lucide-react";
+import { ChevronLeft, LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -34,12 +34,19 @@ export function Topbar() {
     <header className="fixed left-0 right-0 top-0 z-30 h-14 border-b border-border bg-base/80 backdrop-blur-sm lg:left-56">
       <div className="flex h-full items-center justify-between px-4 lg:px-6">
         {/* Left — mobile menu + logo */}
-        <div className="flex items-center gap-3">
-          <MobileSidebar />
-          <Link to="/dashboard" className="flex items-center gap-2 lg:hidden">
-            <HomedyLogo />
-            <span className="text-sm font-semibold text-fg">Homedy</span>
-          </Link>
+        <div>
+          <div className="flex items-center gap-3">
+            <MobileSidebar />
+            <Link to="/dashboard" className="flex items-center gap-2 lg:hidden">
+              <HomedyLogo />
+              <span className="text-sm font-semibold text-fg">Homedy</span>
+            </Link>
+          </div>
+          <ChevronLeft
+            onClick={() => navigate(-1)}
+            aria-label="Previous page"
+            className="hover:text-subtle transition-colors duration-200 cursor-pointer"
+          />
         </div>
 
         {/* Right — user menu */}
