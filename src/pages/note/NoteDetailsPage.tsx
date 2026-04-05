@@ -66,7 +66,7 @@ export const NoteDetailsPage = () => {
           setForm(cleanNote);
           setDef(cleanNote);
         } catch (e) {
-          toast.error(e instanceof ServerError ? e.getMessage() : "Failed to save note");
+          toast.error(e instanceof ServerError ? e.getMessage() : "Failed to load note");
         }
       }
     })();
