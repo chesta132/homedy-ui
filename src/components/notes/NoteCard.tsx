@@ -10,7 +10,7 @@ import { useRef } from "react";
 
 interface NoteCardProps {
   note: Note;
-  recycledMode: boolean;
+  trashMode: boolean;
   selected: boolean;
   onToggleSelect: (id: string) => void;
   onDelete: (id: string) => void;
@@ -18,10 +18,11 @@ interface NoteCardProps {
   someSelected: boolean;
 }
 
-export function NoteCard({ note, recycledMode, selected, onToggleSelect, onDelete, onRestore, someSelected }: NoteCardProps) {
+export function NoteCard({ note, trashMode, selected, onToggleSelect, onDelete, onRestore, someSelected }: NoteCardProps) {
   const isPrivate = note.visibility === "private";
   const holdRef = useRef(false);
   const inSelectMode = useRef(someSelected || selected);
+  const isLinkDisabled = inSelectMode.current || someSelected || selected || trashMode;
 
   const handleTapStart = () => {
     inSelectMode.current = someSelected || selected;
@@ -61,7 +62,8 @@ export function NoteCard({ note, recycledMode, selected, onToggleSelect, onDelet
           <Link
             to={`/notes/${note.id}`}
             className="flex items-center gap-2 min-w-0 flex-1"
-            onClick={(e) => (inSelectMode.current || someSelected || selected) && e.preventDefault()}
+            onClick={(e) => isLinkDisabled && e.preventDefault()}
+            aria-disabled={isLinkDisabled}
           >
             <p className="text-sm font-medium text-fg truncate">{note.title}</p>
             <Badge variant="outline" className="shrink-0 gap-1 text-2xs">
@@ -78,7 +80,7 @@ export function NoteCard({ note, recycledMode, selected, onToggleSelect, onDelet
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {recycledMode ? (
+            {trashMode ? (
               <DropdownMenuItem onClick={() => onRestore(note.id)} className="cursor-pointer gap-2">
                 <RotateCcw className="h-3.5 w-3.5" />
                 Restore
@@ -94,7 +96,7 @@ export function NoteCard({ note, recycledMode, selected, onToggleSelect, onDelet
       </div>
 
       {/* Content preview */}
-      <Link to={`/notes/${note.id}`} className="block" onClick={(e) => (inSelectMode.current || someSelected || selected) && e.preventDefault()}>
+      <Link to={`/notes/${note.id}`} className="block" onClick={(e) => isLinkDisabled && e.preventDefault()} aria-disabled={isLinkDisabled}>
         <p className="text-xs text-dim line-clamp-3 whitespace-pre-wrap">{note.content}</p>
       </Link>
 

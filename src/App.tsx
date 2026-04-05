@@ -45,6 +45,8 @@ function App() {
                         <Route path="/terminal" element={<TerminalPage />} />
                         <Route path="/convert" element={<ConvertPage />} />
                         <Route path="/notes" element={<NoteListPage />} />
+                        {/* TODO: add TrashLayout */}
+                        <Route path="/trash/notes" element={<NoteListPage trashPage />} />
                       </Route>
                     </Route>
 
