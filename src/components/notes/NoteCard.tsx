@@ -8,18 +8,19 @@ import type { Note } from "@/models/note";
 import { Link } from "react-router";
 import { memo, useRef } from "react";
 import { stripHtml } from "@/utils/manipulate/string";
+import { useSelectionStore } from "@/contexts/SelectionContext";
 
 interface NoteCardProps {
   note: Note;
-  trashMode: boolean;
-  selected: boolean;
-  onToggleSelect: (id: string) => void;
+  trashMode: boolean
   onDelete: (id: string) => void;
   onRestore: (id: string) => void;
-  someSelected: boolean;
 }
 
-export const NoteCard = memo(({ note, trashMode, selected, onToggleSelect, onDelete, onRestore, someSelected }: NoteCardProps) => {
+export const NoteCard = memo(({ note, trashMode, onDelete, onRestore }: NoteCardProps) => {
+  const selected = useSelectionStore((s) => s.isSelected(note.id));
+  const toggle = useSelectionStore((s) => s.toggle);
+  const someSelected = useSelectionStore((s) => s.selected.size > 0);
   const isPrivate = note.visibility === "private";
   const holdRef = useRef(false);
   const inSelectMode = useRef(someSelected || selected);
@@ -27,14 +28,14 @@ export const NoteCard = memo(({ note, trashMode, selected, onToggleSelect, onDel
   const handleTapStart = () => {
     inSelectMode.current = someSelected || selected;
     if (someSelected || selected) {
-      onToggleSelect(note.id);
+      toggle(note.id);
       return;
     }
     holdRef.current = true;
     setTimeout(() => {
       if (holdRef.current && !someSelected && !selected) {
         // setSelectMode(true);
-        onToggleSelect(note.id);
+        toggle(note.id);
       }
     }, 500);
   };

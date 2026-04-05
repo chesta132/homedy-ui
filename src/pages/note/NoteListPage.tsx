@@ -1,5 +1,5 @@
 import { useNote } from "@/contexts/NoteContext";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { PageTitle } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
@@ -18,26 +18,13 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
   const { notes, sort, pagination, paginationLoading } = trashPage ? trash : exist;
   const { ensureNotes, refreshNotes, restoreOne, getNext } = useNoteAction();
 
-  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   useEffect(() => {
     ensureNotes({ recycled: trashPage });
   }, [trashPage]);
 
-  const selectable = selected.size > 0;
-  const allSelected = notes.length > 0 && selected.size === notes.length;
-  const someSelected = selected.size > 0 && !allSelected;
-
-  const toggleSelect = useCallback((id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  }, []);
-
-  return (
+  return (  
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <Paginate hasNext={pagination?.hasNext} isLoading={paginationLoading || loading} onPaginate={() => getNext(trashPage)}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -77,18 +64,7 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
           </div>
         </div>
 
-        <AnimatePresence>
-          {notes.length > 0 && (
-            <SelectNoteList
-              selected={selected}
-              setSelected={setSelected}
-              trashMode={trashPage}
-              allSelected={allSelected}
-              selectable={selectable}
-              someSelected={someSelected}
-            />
-          )}
-        </AnimatePresence>
+        <AnimatePresence>{notes.length > 0 && <SelectNoteList trashMode={trashPage} />}</AnimatePresence>
 
         {loading ? (
           <Loading />
@@ -106,15 +82,7 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(i * 0.04, 0.3) }}
               >
-                <NoteCard
-                  note={note}
-                  trashMode={trashPage}
-                  selected={selected.has(note.id)}
-                  onToggleSelect={toggleSelect}
-                  onDelete={(id) => setDeleteTarget(id)}
-                  onRestore={restoreOne}
-                  someSelected={someSelected}
-                />
+                <NoteCard note={note} trashMode={trashPage} onDelete={(id) => setDeleteTarget(id)} onRestore={restoreOne} />
               </motion.div>
             ))}
           </div>

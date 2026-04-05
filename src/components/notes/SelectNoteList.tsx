@@ -6,29 +6,18 @@ import { Loading } from "@/components/ui/loading";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNoteAction } from "@/contexts/NoteActionContext";
 import { Label } from "@/components/ui/label";
+import { useSelectionStore } from "@/contexts/SelectionContext";
+import { useMemo } from "react";
 
-export const SelectNoteList = ({
-  selected,
-  setSelected,
-  trashMode,
-  allSelected,
-  selectable,
-  someSelected,
-}: {
-  selected: Set<string>;
-  setSelected: React.Dispatch<React.SetStateAction<Set<string>>>;
-  trashMode: boolean;
-  selectable: boolean;
-  allSelected: boolean;
-  someSelected: boolean;
-}) => {
+export const SelectNoteList = ({ trashMode }: { trashMode: boolean }) => {
   const { exist, loading, trash } = useNote();
   const { deleteMany, restoreMany } = useNoteAction();
   const { notes } = trashMode ? trash : exist;
+  const noteIds = useMemo(() => notes.map((n) => n.id), [notes]);
 
-  const toggleSelectAll = () => {
-    setSelected(someSelected || allSelected ? new Set() : new Set(notes.map((n) => n.id)));
-  };
+  const { clear, toggleSelectAll, selected } = useSelectionStore();
+  const someSelected = useSelectionStore((s) => s.selected.size > 0);
+  const allSelected = useSelectionStore((s) => s.allSelected(noteIds));
 
   const handleAction = () => {
     if (trashMode) {
@@ -36,7 +25,7 @@ export const SelectNoteList = ({
     } else {
       deleteMany(notes.filter((n) => selected.has(n.id)));
     }
-    setSelected(new Set());
+    clear();
   };
 
   return (
@@ -47,13 +36,17 @@ export const SelectNoteList = ({
       className="flex items-center gap-3 rounded-lg border border-border bg-[#0f0f0f] px-3 py-2 min-h-12"
     >
       {/* Select all checkbox */}
-      <Checkbox id="select-checkbox" checked={allSelected ? true : someSelected ? "indeterminate" : false} onCheckedChange={toggleSelectAll} />
+      <Checkbox
+        id="select-checkbox"
+        checked={allSelected ? true : someSelected ? "indeterminate" : false}
+        onCheckedChange={() => toggleSelectAll(noteIds)}
+      />
       <Label htmlFor="select-checkbox" className="text-xs flex-1 cursor-pointer">
         {selected.size > 0 ? `${selected.size} of ${notes.length} selected` : `Select all (${notes.length})`}
       </Label>
 
       <AnimatePresence>
-        {selectable && (
+        {selected.size > 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
             <Button
               size="sm"
@@ -72,7 +65,7 @@ export const SelectNoteList = ({
               {trashMode ? "Restore" : "Delete"} {selected.size}
             </Button>
 
-            <Button size="icon" variant="ghost" onClick={() => setSelected(new Set())} className="h-7 w-7">
+            <Button size="icon" variant="ghost" onClick={() => clear()} className="h-7 w-7">
               <X className="size-3.5" />
             </Button>
           </motion.div>
