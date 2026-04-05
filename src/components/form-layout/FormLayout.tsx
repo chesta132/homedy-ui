@@ -86,7 +86,7 @@ FormLayout.singleDatePicker = FormSingleDatePicker;
 FormLayout.fieldError = FormFieldError;
 FormLayout.toggle = FormToggle;
 FormLayout.tagInput = FormTagInput;
-FormLayout.FormRichEditor = FormRichEditor;
+FormLayout.richEditor = FormRichEditor;
 FormLayout.unixPermissionInput = FormUnixPermissionInput;
 
 export const useFormLayout = () => {
