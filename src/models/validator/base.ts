@@ -8,7 +8,7 @@ export abstract class BaseValidator {
   });
 
   static readonly baseRecyclable = z.object({
-    deletedAt: z.coerce.date(),
+    deletedAt: z.coerce.date().nullable(),
     ...this.baseModel.shape,
   });
 
