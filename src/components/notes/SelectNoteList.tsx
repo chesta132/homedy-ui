@@ -30,6 +30,15 @@ export const SelectNoteList = ({
     setSelected(someSelected || allSelected ? new Set() : new Set(notes.map((n) => n.id)));
   };
 
+  const handleAction = () => {
+    if (trashMode) {
+      restoreMany({ ids: [...selected] });
+    } else {
+      deleteMany(notes.filter((n) => selected.has(n.id)));
+    }
+    setSelected(new Set());
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -6 }}
@@ -49,7 +58,7 @@ export const SelectNoteList = ({
             <Button
               size="sm"
               variant={trashMode ? "outline" : "destructive"}
-              onClick={() => (trashMode ? restoreMany({ ids: [...selected] }) : deleteMany(notes.filter((n) => selected.has(n.id))))}
+              onClick={handleAction}
               disabled={loading}
               className="h-7 bg-transparent text-xs"
             >
