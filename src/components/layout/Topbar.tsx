@@ -45,7 +45,7 @@ export function Topbar() {
           <ChevronLeft
             onClick={() => navigate(-1)}
             aria-label="Previous page"
-            className="hover:text-subtle transition-colors duration-200 cursor-pointer"
+            className="hover:text-subtle transition-colors duration-200 cursor-pointer hidden lg:block"
           />
         </div>
 
