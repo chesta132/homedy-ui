@@ -36,7 +36,9 @@ export interface Response<T, Success extends boolean = boolean> {
     /** Optional information message */
     information?: string;
     debug?: any;
-  } & (Success extends true ? Pagination : object);
+    /** Pagination information */
+    pagination?: Pagination;
+  };
   /** Response payload data */
   data: T;
 }

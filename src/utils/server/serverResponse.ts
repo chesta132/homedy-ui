@@ -57,11 +57,7 @@ export class ServerSuccess<T> {
   }
 
   getPagination(): Pagination {
-    const meta = this.meta as Pagination;
-    const current = meta.current;
-    const hasNext = meta.hasNext;
-    const next = meta.next;
-    return { current, hasNext, next };
+    return this.meta.pagination || { current: 0, hasNext: false, next: 0 };
   }
 
   getFilename: T extends Blob ? () => string : never = (() => {
