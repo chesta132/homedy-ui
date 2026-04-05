@@ -12,19 +12,20 @@ import { SelectNoteList } from "@/components/notes/SelectNoteList";
 import { cn } from "@/lib/utils";
 import { DeleteNoteDialog } from "@/components/notes/DeleteNoteDialog";
 import { Paginate } from "@/components/ui/paginate";
+import type { Note } from "@/models/note";
 
 export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => {
   const { exist, loading, trash } = useNote();
   const { notes, sort, pagination, paginationLoading } = trashPage ? trash : exist;
   const { ensureNotes, refreshNotes, restoreOne, getNext } = useNoteAction();
 
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
 
   useEffect(() => {
     ensureNotes({ recycled: trashPage });
   }, [trashPage]);
 
-  return (  
+  return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <Paginate hasNext={pagination?.hasNext} isLoading={paginationLoading || loading} onPaginate={() => getNext(trashPage)}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -82,16 +83,12 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(i * 0.04, 0.3) }}
               >
-                <NoteCard note={note} trashMode={trashPage} onDelete={(id) => setDeleteTarget(id)} onRestore={restoreOne} />
+                <NoteCard note={note} trashMode={trashPage} onDelete={(note) => setDeleteTarget(note)} onRestore={(n) => restoreOne(n.id)} />
               </motion.div>
             ))}
           </div>
         )}
-        <DeleteNoteDialog
-          open={!!deleteTarget}
-          note={(deleteTarget && notes.find((n) => n.id === deleteTarget)) || null}
-          onClose={() => setDeleteTarget(null)}
-        />
+        <DeleteNoteDialog open={!!deleteTarget} note={deleteTarget} onClose={() => setDeleteTarget(null)} />
       </Paginate>
     </motion.div>
   );

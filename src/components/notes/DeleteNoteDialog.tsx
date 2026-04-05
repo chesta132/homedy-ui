@@ -19,7 +19,7 @@ export function DeleteNoteDialog({ open, note, onClose }: DeleteNoteDialogProps)
     if (!note) return;
     setLoading(true);
     try {
-      await deleteOne(note);
+      await deleteOne(note, { skipLoading: true });
       onClose();
     } finally {
       setLoading(false);

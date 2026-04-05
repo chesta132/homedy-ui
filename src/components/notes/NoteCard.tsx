@@ -12,9 +12,9 @@ import { useSelectionStore } from "@/contexts/SelectionContext";
 
 interface NoteCardProps {
   note: Note;
-  trashMode: boolean
-  onDelete: (id: string) => void;
-  onRestore: (id: string) => void;
+  trashMode: boolean;
+  onDelete: (note: Note) => void;
+  onRestore: (note: Note) => void;
 }
 
 export const NoteCard = memo(({ note, trashMode, onDelete, onRestore }: NoteCardProps) => {
@@ -81,12 +81,12 @@ export const NoteCard = memo(({ note, trashMode, onDelete, onRestore }: NoteCard
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {trashMode ? (
-                <DropdownMenuItem onClick={() => onRestore(note.id)} className="cursor-pointer gap-2">
+                <DropdownMenuItem onClick={() => onRestore(note)} className="cursor-pointer gap-2">
                   <RotateCcw className="h-3.5 w-3.5" />
                   Restore
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem onClick={() => onDelete(note.id)} className="cursor-pointer gap-2 text-danger focus:text-danger">
+                <DropdownMenuItem onClick={() => onDelete(note)} className="cursor-pointer gap-2 text-danger focus:text-danger">
                   <Trash2 className="h-3.5 w-3.5" />
                   Delete
                 </DropdownMenuItem>
