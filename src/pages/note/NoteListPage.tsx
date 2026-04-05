@@ -26,8 +26,8 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
   }, [trashPage]);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <Paginate hasNext={pagination?.hasNext} isLoading={paginationLoading || loading} onPaginate={() => getNext(trashPage)}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <Paginate hasNext={pagination?.hasNext} isLoading={paginationLoading || loading} onPaginate={() => getNext(trashPage)} className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <PageTitle pageTitle="Notes" subtitle={trashPage ? "Your notes trash can" : "Save notes over devices"} />
           <div className="flex items-center gap-2">

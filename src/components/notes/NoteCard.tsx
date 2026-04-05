@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from "@/lib/utils";
 import type { Note } from "@/models/note";
 import { Link } from "react-router";
-import { memo, useRef } from "react";
+import { memo, useRef, useState } from "react";
 import { stripHtml } from "@/utils/manipulate/string";
 import { useSelectionStore } from "@/contexts/SelectionContext";
 
@@ -24,6 +24,8 @@ export const NoteCard = memo(({ note, trashMode, onDelete, onRestore }: NoteCard
   const isPrivate = note.visibility === "private";
   const holdRef = useRef(false);
   const inSelectMode = useRef(someSelected || selected);
+  const inRightClick = useRef(false);
+  const [dropdown, setDropdown] = useState(false);
 
   const handleTapStart = () => {
     inSelectMode.current = someSelected || selected;
@@ -41,6 +43,14 @@ export const NoteCard = memo(({ note, trashMode, onDelete, onRestore }: NoteCard
   };
   const handleTapCancel = () => (holdRef.current = false);
 
+  const handleRightClick = (e: React.MouseEvent<unknown, MouseEvent>) => {
+    inRightClick.current = true;
+    e.preventDefault();
+    e.stopPropagation();
+    if (!dropdown) setDropdown(true);
+    inRightClick.current = false;
+  };
+
   return (
     <motion.div
       whileTap={{ scale: 0.95 }}
@@ -51,15 +61,18 @@ export const NoteCard = memo(({ note, trashMode, onDelete, onRestore }: NoteCard
         opacity: someSelected && !selected ? 0.5 : 1,
         scale: someSelected && !selected ? 0.97 : 1,
       }}
+      className="h-full"
     >
       <Link
         to={`/notes/${note.id}`}
         className={cn(
-          "group flex flex-col gap-2 rounded-lg border bg-[#0f0f0f] p-4 transition-colors cursor-pointer",
+          "group flex flex-col gap-2 rounded-lg border bg-[#0f0f0f] p-4 transition-colors cursor-pointer h-full",
           selected ? "border-border-hover bg-[#141414]" : "border-border hover:border-border-sub hover:bg-[#141414]",
         )}
-        onClick={(e) => (inSelectMode.current || someSelected || selected || trashMode) && e.preventDefault()}
-        aria-disabled={inSelectMode.current || someSelected || selected || trashMode}
+        // hard code to prevent wait for re-render
+        onClick={(e) => (inRightClick.current || inSelectMode.current || someSelected || selected || trashMode) && e.preventDefault()}
+        aria-disabled={inRightClick.current || inSelectMode.current || someSelected || selected || trashMode}
+        onContextMenu={handleRightClick}
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-2">
@@ -73,13 +86,13 @@ export const NoteCard = memo(({ note, trashMode, onDelete, onRestore }: NoteCard
             </div>
           </div>
 
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={setDropdown} open={dropdown}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                 <MoreHorizontal className="h-3.5 w-3.5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
               {trashMode ? (
                 <DropdownMenuItem onClick={() => onRestore(note)} className="cursor-pointer gap-2">
                   <RotateCcw className="h-3.5 w-3.5" />
