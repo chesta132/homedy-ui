@@ -9,7 +9,7 @@ export type FormGroup<T extends ZodObject> = {
   /** @deprecated use `updateField` instead */
   readonly validateField: (field: Partial<ZodInfer<T>>) => boolean;
   readonly resetForm: () => void;
-  readonly updateField: <T extends keyof ZodInfer<T>>(field: T, value: ZodInfer<T>[T]) => void;
+  readonly updateField: <K extends keyof ZodInfer<T>>(field: K, value: ZodInfer<T>[K]) => void;
 };
 
 export const useForm = <T extends ZodObject>(defaultVal: ZodInfer<T>, validator: T) => {
