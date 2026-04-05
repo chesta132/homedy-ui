@@ -3,28 +3,23 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import { type Pagination } from "@/types/server";
 import type { Sort } from "@/models/base";
 
+export type NotePageState = {
+  notes: Note[];
+  setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
+
+  pagination: Pagination | null;
+  setPagination: React.Dispatch<React.SetStateAction<Pagination | null>>;
+
+  sort: Sort;
+  setSort: React.Dispatch<React.SetStateAction<Sort>>;
+
+  ensured: boolean;
+  setEnsured: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 type NoteContextValue = {
-  exist: {
-    notes: Note[];
-    setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
-
-    pagination: Pagination | null;
-    setPagination: React.Dispatch<React.SetStateAction<Pagination | null>>;
-
-    sort: Sort;
-    setSort: React.Dispatch<React.SetStateAction<Sort>>;
-  };
-  trash: {
-    notes: Note[];
-    setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
-
-    pagination: Pagination | null;
-    setPagination: React.Dispatch<React.SetStateAction<Pagination | null>>;
-
-    sort: Sort;
-    setSort: React.Dispatch<React.SetStateAction<Sort>>;
-  };
-
+  exist: NotePageState;
+  trash: NotePageState;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -36,7 +31,8 @@ export const NoteProvider = ({ children }: { children: ReactNode }) => {
     const [notes, setNotes] = useState<Note[]>([]);
     const [pagination, setPagination] = useState<Pagination | null>(null);
     const [sort, setSort] = useState<Sort>("desc");
-    return { notes, setNotes, pagination, setPagination, sort, setSort };
+    const [ensured, setEnsured] = useState(false);
+    return { notes, setNotes, pagination, setPagination, sort, setSort, ensured, setEnsured };
   };
 
   const [loading, setLoading] = useState(false);

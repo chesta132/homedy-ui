@@ -1,8 +1,8 @@
 import type { Note, NotePayload } from "@/models/note";
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { api } from "@/utils/server/apiClient";
 import { type Sort } from "@/models/base";
-import { useNote } from "./NoteContext";
+import { useNote, type NotePageState } from "./NoteContext";
 
 type NoteActionContextValue = {
   fetchNotes: (query?: NotePayload.GetNotesQuery) => Promise<Note[]>;
@@ -22,10 +22,9 @@ const NoteActionContext = createContext<NoteActionContextValue | null>(null);
 
 export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
   const { exist, setLoading, trash } = useNote();
-  const [ensured, setEnsured] = useState(false);
 
   const stateOfPage = (recycled: boolean) => (recycled ? trash : exist);
-  const ensureEnsured = () => (!ensured && setEnsured(true)) || (undefined as void);
+  const ensureEnsured = ({ ensured, setEnsured }: NotePageState) => (!ensured && setEnsured(true)) || (undefined as void);
   const joinWithSortMode = (old: Note[], news: Note[], sortMode: Sort) => (sortMode === "desc" ? [news, ...old] : [...old, news]) as Note[];
 
   const refreshNotes = async (query?: NotePayload.GetNotesQuery) => {
@@ -34,7 +33,7 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       const notes = await api.get("/notes", { query });
       state.setNotes(notes.data);
-      ensureEnsured();
+      ensureEnsured(state);
       state.setPagination(notes.getPagination());
       return notes.data;
     } finally {
@@ -48,7 +47,7 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       const notes = await api.get("/notes", { query });
       state.setNotes((prev) => [...prev, ...notes.data]);
-      ensureEnsured();
+      ensureEnsured(state);
       state.setPagination(notes.getPagination());
       return notes.data;
     } finally {
@@ -57,6 +56,7 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const ensureNotes = async (query?: NotePayload.GetNotesQuery) => {
+    const { ensured } = stateOfPage(!!query?.recycled);
     if (!ensured) return await refreshNotes(query);
     return null;
   };
@@ -92,7 +92,7 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       const note = await api.post("/notes", { data });
       setNotes((prev) => joinWithSortMode(prev, [note.data], sort));
-      ensureEnsured();
+      ensureEnsured(exist);
       if (pagination) {
         setPagination((prev) => prev && { ...prev, current: prev.current + 1, next: prev.next + (prev.hasNext ? 1 : 0) });
       }
@@ -147,7 +147,8 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       if (trash.pagination) {
         trash.setPagination((prev) => prev && { ...prev, current: prev.current - 1, next: prev.next === 0 ? 0 : prev.next - 1 });
       }
-      ensureEnsured();
+      ensureEnsured(exist);
+      ensureEnsured(trash);
       return note.data;
     } finally {
       setLoading(false);
@@ -166,7 +167,8 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       if (trash.pagination) {
         trash.setPagination((prev) => prev && { ...prev, current: prev.current - 1, next: prev.next === 0 ? 0 : prev.next - 1 });
       }
-      ensureEnsured();
+      ensureEnsured(exist);
+      ensureEnsured(trash);
       return notes.data;
     } finally {
       setLoading(false);

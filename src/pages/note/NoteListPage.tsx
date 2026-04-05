@@ -21,8 +21,8 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   useEffect(() => {
-    ensureNotes();
-  }, []);
+    ensureNotes({ recycled: trashPage });
+  }, [trashPage]);
 
   const selectable = selected.size > 0;
   const allSelected = notes.length > 0 && selected.size === notes.length;
