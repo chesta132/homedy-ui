@@ -12,8 +12,8 @@ type NoteActionContextValue = {
   getOne: (id: string) => Promise<Note>;
   createOne: (data: NotePayload.CreateNoteBody) => Promise<Note>;
   updateOne: (id: string, data: NotePayload.UpdateNoteBody) => Promise<Note>;
-  deleteOne: (id: string) => Promise<NotePayload.DeleteNoteResponse>;
-  deleteMany: (data: NotePayload.DeleteNotesBody) => Promise<NotePayload.DeleteNotesResponse>;
+  deleteOne: (note: Note) => Promise<NotePayload.DeleteNoteResponse>;
+  deleteMany: (notes: Note[]) => Promise<NotePayload.DeleteNotesResponse>;
   restoreOne: (id: string) => Promise<Note>;
   restoreMany: (data: NotePayload.RestoreNotesBody, query?: NotePayload.RestoreNotesQuery) => Promise<Note[]>;
 };
@@ -25,7 +25,7 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
 
   const stateOfPage = (recycled: boolean) => (recycled ? trash : exist);
   const ensureEnsured = ({ ensured, setEnsured }: NotePageState) => (!ensured && setEnsured(true)) || (undefined as void);
-  const joinWithSortMode = (old: Note[], news: Note[], sortMode: Sort) => (sortMode === "desc" ? [news, ...old] : [...old, news]) as Note[];
+  const joinWithSortMode = (prev: Note[], next: Note[], sortMode: Sort) => (sortMode === "desc" ? [...next, ...prev] : [...prev, ...next]) as Note[];
 
   const refreshNotes = async (query?: NotePayload.GetNotesQuery) => {
     try {
@@ -91,11 +91,14 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
       const { setNotes, pagination, setPagination, sort } = exist;
       setLoading(true);
       const note = await api.post("/notes", { data });
-      setNotes((prev) => joinWithSortMode(prev, [note.data], sort));
+      setNotes((prev) => {
+        const next = joinWithSortMode(prev, [note.data], sort);
+        if (pagination) {
+          setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
       ensureEnsured(exist);
-      if (pagination) {
-        setPagination((prev) => prev && { ...prev, current: prev.current + 1, next: prev.next + (prev.hasNext ? 1 : 0) });
-      }
       return note.data;
     } finally {
       setLoading(false);
@@ -113,22 +116,51 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const deleteOne = async (id: string) => {
+  const deleteOne = async (note: Note) => {
     try {
+      const { id } = note;
       setLoading(true);
       const res = await api.delete("/notes/{id}", { param: { id } });
-      exist.setNotes((prev) => prev.filter((prevNote) => prevNote.id !== res.data.id));
+      exist.setNotes((prev) => {
+        const next = prev.filter((prevNote) => prevNote.id !== res.data.id);
+        if (exist.pagination) {
+          exist.setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
+      trash.setNotes((prev) => {
+        const next = joinWithSortMode(prev, [note], trash.sort);
+        if (trash.pagination) {
+          trash.setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
+      ensureEnsured(trash);
       return res.data;
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteMany = async (data: NotePayload.DeleteNotesBody) => {
+  const deleteMany = async (notes: Note[]) => {
     try {
       setLoading(true);
+      const data = { ids: notes.map((n) => n.id) };
       const res = await api.delete("/notes", { data });
-      exist.setNotes((prev) => prev.filter((prevNote) => !data.ids.includes(prevNote.id)));
+      exist.setNotes((prev) => {
+        const next = prev.filter((prevNote) => !data.ids.includes(prevNote.id));
+        if (exist.pagination) {
+          exist.setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
+      trash.setNotes((prev) => {
+        const next = joinWithSortMode(prev, notes, trash.sort);
+        if (trash.pagination) {
+          trash.setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
       return res.data;
     } finally {
       setLoading(false);
@@ -139,14 +171,20 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       const note = await api.patch("/notes/restore/{id}", { param: { id } });
-      exist.setNotes((prev) => joinWithSortMode(prev, [note.data], exist.sort));
-      trash.setNotes((prev) => prev.filter((prevNote) => prevNote.id !== note.data.id));
-      if (exist.pagination) {
-        exist.setPagination((prev) => prev && { ...prev, current: prev.current + 1, next: prev.next + (prev.hasNext ? 1 : 0) });
-      }
-      if (trash.pagination) {
-        trash.setPagination((prev) => prev && { ...prev, current: prev.current - 1, next: prev.next === 0 ? 0 : prev.next - 1 });
-      }
+      exist.setNotes((prev) => {
+        const next = joinWithSortMode(prev, [note.data], exist.sort);
+        if (exist.pagination) {
+          exist.setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
+      trash.setNotes((prev) => {
+        const next = prev.filter((prevNote) => prevNote.id !== note.data.id);
+        if (trash.pagination) {
+          trash.setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
       ensureEnsured(exist);
       ensureEnsured(trash);
       return note.data;
@@ -159,14 +197,20 @@ export const NoteActionProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       const notes = await api.patch("/notes/restore", { data, query: { sort } });
-      exist.setNotes((prev) => joinWithSortMode(prev, notes.data, exist.sort));
-      trash.setNotes((prev) => prev.filter((prevNote) => !notes.data.some((data) => data.id === prevNote.id)));
-      if (exist.pagination) {
-        exist.setPagination((prev) => prev && { ...prev, current: prev.current + 1, next: prev.next + (prev.hasNext ? 1 : 0) });
-      }
-      if (trash.pagination) {
-        trash.setPagination((prev) => prev && { ...prev, current: prev.current - 1, next: prev.next === 0 ? 0 : prev.next - 1 });
-      }
+      exist.setNotes((prev) => {
+        const next = joinWithSortMode(prev, notes.data, exist.sort);
+        if (exist.pagination) {
+          exist.setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
+      trash.setNotes((prev) => {
+        const next = prev.filter((prevNote) => !notes.data.some((data) => data.id === prevNote.id));
+        if (trash.pagination) {
+          trash.setPagination((prev) => prev && { ...prev, current: next.length, next: next.length + 1 });
+        }
+        return next;
+      });
       ensureEnsured(exist);
       ensureEnsured(trash);
       return notes.data;

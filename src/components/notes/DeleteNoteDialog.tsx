@@ -3,22 +3,23 @@ import { Loader2, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useNoteAction } from "@/contexts/NoteActionContext";
+import type { Note } from "@/models/note";
 
 interface DeleteNoteDialogProps {
   open: boolean;
-  noteId: string | null;
+  note: Note | null;
   onClose: () => void;
 }
 
-export function DeleteNoteDialog({ open, noteId, onClose }: DeleteNoteDialogProps) {
+export function DeleteNoteDialog({ open, note, onClose }: DeleteNoteDialogProps) {
   const [loading, setLoading] = useState(false);
   const { deleteOne } = useNoteAction();
 
   const handleDelete = async () => {
-    if (!noteId) return;
+    if (!note) return;
     setLoading(true);
     try {
-      await deleteOne(noteId);
+      await deleteOne(note);
       onClose();
     } finally {
       setLoading(false);

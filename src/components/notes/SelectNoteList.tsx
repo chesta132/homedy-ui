@@ -22,11 +22,9 @@ export const SelectNoteList = ({
   allSelected: boolean;
   someSelected: boolean;
 }) => {
-  const {
-    exist: { notes },
-    loading,
-  } = useNote();
+  const { exist, loading, trash } = useNote();
   const { deleteMany, restoreMany } = useNoteAction();
+  const { notes } = trashMode ? trash : exist;
 
   const toggleSelectAll = () => {
     setSelected(someSelected || allSelected ? new Set() : new Set(notes.map((n) => n.id)));
@@ -51,7 +49,7 @@ export const SelectNoteList = ({
             <Button
               size="sm"
               variant={trashMode ? "outline" : "destructive"}
-              onClick={() => (trashMode ? restoreMany({ ids: [...selected] }) : deleteMany({ ids: [...selected] }))}
+              onClick={() => (trashMode ? restoreMany({ ids: [...selected] }) : deleteMany(notes.filter((n) => selected.has(n.id))))}
               disabled={loading}
               className="h-7 bg-transparent text-xs"
             >

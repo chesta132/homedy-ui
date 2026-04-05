@@ -111,7 +111,11 @@ export const NoteListPage = ({ trashPage = false }: { trashPage?: boolean }) => 
           ))}
         </div>
       )}
-      <DeleteNoteDialog open={!!deleteTarget} noteId={deleteTarget} onClose={() => setDeleteTarget(null)} />
+      <DeleteNoteDialog
+        open={!!deleteTarget}
+        note={(deleteTarget && notes.find((n) => n.id === deleteTarget)) || null}
+        onClose={() => setDeleteTarget(null)}
+      />
     </motion.div>
   );
 };
