@@ -14,6 +14,7 @@ import { handleFormError } from "@/utils/server/handleError";
 import type { z, ZodObject } from "zod";
 import { FormFieldError } from "./FormError";
 import { FormToggle } from "./FormToggle";
+import { FormRichEditor } from "./FormRichEditor";
 
 type FormValues<F extends ZodObject = any> = { form: FormGroup<F> };
 
@@ -85,6 +86,7 @@ FormLayout.singleDatePicker = FormSingleDatePicker;
 FormLayout.fieldError = FormFieldError;
 FormLayout.toggle = FormToggle;
 FormLayout.tagInput = FormTagInput;
+FormLayout.FormRichEditor = FormRichEditor;
 FormLayout.unixPermissionInput = FormUnixPermissionInput;
 
 export const useFormLayout = () => {
