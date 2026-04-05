@@ -17,7 +17,10 @@ export interface Pagination {
   current: number;
   /** Indicates whether there is next data (for pagination) */
   hasNext: boolean;
-  /** Next offset for pagination */
+  /**
+   * Next offset for pagination
+   * @deprecated use current + 1
+   */
   next: number;
 }
 
