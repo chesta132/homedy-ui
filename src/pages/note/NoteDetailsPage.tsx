@@ -149,6 +149,7 @@ export const NoteDetailsPage = () => {
               autoFocus={isCreatePage}
               placeholder="Title"
               onBlur={() => formRef.current?.requestSubmit()}
+              ignoreError
             />
             <div className="flex gap-2 mx-3 text-xs text-dim">
               <p>{new Date(note.updatedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>|
@@ -177,7 +178,7 @@ export const NoteDetailsPage = () => {
             </div>
           )}
         </div>
-        <FormLayout.richEditor editor={editor} fieldId="content" onBlur={() => formRef.current?.requestSubmit()} />
+        <FormLayout.richEditor editor={editor} fieldId="content" onBlur={() => formRef.current?.requestSubmit()} ignoreError />
       </FormLayout>
       <ShareNoteDialog note={note} onClose={() => setOpenShareDialog(false)} open={openShareDialog} onShare={(v) => handleSave({ visibility: v })} />
     </motion.div>
