@@ -1,6 +1,7 @@
 import type { ErrorResponse, Pagination, Response } from "@/types/server";
 import type { AxiosError, AxiosResponse } from "axios";
 import { capital } from "../manipulate/string";
+import type { ZodType } from "zod";
 
 export class ServerError {
   // AxiosError<any> because response props replaced to non undefined
@@ -40,14 +41,14 @@ export class ServerSuccess<T> {
   readonly meta: Response<T>["meta"];
   readonly axios: AxiosResponse<Response<T>>;
 
-  constructor(response: AxiosResponse<Response<T>>) {
+  constructor(response: AxiosResponse<Response<T>>, validator: ZodType) {
     this.axios = response;
     const data = response.data;
     if (data instanceof Blob || typeof data !== "object") {
-      this.data = data as any;
-      this.meta = data as any;
+      this.data = validator.parse(data) as any;
+      this.meta = { status: "SUCCESS", timestamp: new Date() };
     } else {
-      this.data = data.data;
+      this.data = validator.parse(data.data) as any;
       this.meta = data.meta;
     }
   }

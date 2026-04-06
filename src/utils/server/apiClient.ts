@@ -1,6 +1,6 @@
 import { isProdEnv, VITE_BACKEND_URL } from "@/config";
 import { pick } from "../manipulate/object";
-import type { EndpointsType } from "./endpoints";
+import { Endpoints, type EndpointPath, type EndpointsType, type Method } from "./endpoints";
 import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 import { ServerError, ServerSuccess } from "./serverResponse";
 import type { Response } from "@/types/server";
@@ -20,9 +20,11 @@ export type ApiConfig<B = any, Q = any, P = any, H = any> = AxiosRequestConfig &
   OptionalField<"data", B> &
   OptionalField<"query", Q> &
   OptionalField<"param", P> &
-  OptionalField<"header", H>;
+  OptionalField<"header", H> & { method: Method; url: keyof MergeUnion<EndpointsType[Method]> };
 
-type ConfigWrapper<T> = [Partial<T>] extends [T] ? [T?] : [T];
+/** Omit for ConfigWrapper */
+type OCW<T> = Omit<T, "path" | "method" | "url">;
+type ConfigWrapper<T> = [Partial<OCW<T>>] extends [OCW<T>] ? [OCW<T>?] : [OCW<T>];
 
 export class ApiClient {
   private readonly api;
@@ -44,15 +46,24 @@ export class ApiClient {
     });
   }
 
-  private async request<T>({ query, param, url, header, ...config }: ApiConfig): Promise<ServerSuccess<T>> {
+  private async request<T>({ query, param, url, header, method, data, ...config }: ApiConfig): Promise<ServerSuccess<T>> {
     try {
-      const path = joinQuery(insertParam(url!, param), query);
+      const validator = Endpoints.PATHS[method][url as keyof (typeof Endpoints.PATHS)[Method]] as EndpointPath;
+      const validated = {
+        body: validator.body.parse(data),
+        param: validator.param.parse(param) ?? {},
+        query: validator.query.parse(query) ?? {},
+        header: validator.header.parse(header) ?? {},
+      };
+      const path = joinQuery(insertParam(url, validated.param), validated.query);
       const response = (await this.api.request<T>({
         ...config,
         url: path,
-        headers: { ...config.headers, ...header },
+        method,
+        data: validated.body,
+        headers: { ...config.headers, ...(validated.header as any) },
       })) as AxiosResponse<Response<T>>;
-      return new ServerSuccess(response);
+      return new ServerSuccess(response, validator.response);
     } catch (error) {
       if (isAxiosError(error) && error.response) {
         throw new ServerError(error);
@@ -62,29 +73,29 @@ export class ApiClient {
   }
 
   get<P extends keyof Get>(path: P, ...[config]: ConfigWrapper<ApiConfig<Get[P]["body"], Get[P]["query"], Get[P]["param"], Get[P]["header"]>>) {
-    return this.request<Get[P]["response"]>({ ...config, url: path as string, method: "GET" });
+    return this.request<Get[P]["response"]>({ ...config, url: path, method: "GET" });
   }
 
   post<P extends keyof Post>(path: P, ...[config]: ConfigWrapper<ApiConfig<Post[P]["body"], Post[P]["query"], Post[P]["param"], Post[P]["header"]>>) {
-    return this.request<Post[P]["response"]>({ ...config, url: path as string, method: "POST" });
+    return this.request<Post[P]["response"]>({ ...config, url: path, method: "POST" });
   }
 
   put<P extends keyof Put>(path: P, ...[config]: ConfigWrapper<ApiConfig<Put[P]["body"], Put[P]["query"], Put[P]["param"], Put[P]["header"]>>) {
-    return this.request<Put[P]["response"]>({ ...config, url: path as string, method: "PUT" });
+    return this.request<Put[P]["response"]>({ ...config, url: path, method: "PUT" });
   }
 
   patch<P extends keyof Patch>(
     path: P,
     ...[config]: ConfigWrapper<ApiConfig<Patch[P]["body"], Patch[P]["query"], Patch[P]["param"], Patch[P]["header"]>>
   ) {
-    return this.request<Patch[P]["response"]>({ ...config, url: path as string, method: "PATCH" });
+    return this.request<Patch[P]["response"]>({ ...config, url: path, method: "PATCH" });
   }
 
   delete<P extends keyof Delete>(
     path: P,
     ...[config]: ConfigWrapper<ApiConfig<Delete[P]["body"], Delete[P]["query"], Delete[P]["param"], Delete[P]["header"]>>
   ) {
-    return this.request<Delete[P]["response"]>({ ...config, url: path as string, method: "DELETE" });
+    return this.request<Delete[P]["response"]>({ ...config, url: path, method: "DELETE" });
   }
 }
 
