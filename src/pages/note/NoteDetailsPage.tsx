@@ -14,11 +14,12 @@ import { pick } from "@/utils/manipulate/object";
 import { useAuth } from "@/contexts/AuthContext";
 import { type NotePayload, type Note } from "@/models/note";
 import { ServerError } from "@/utils/server/serverResponse";
-import { CheckCircle2Icon, Share2 } from "lucide-react";
+import { CheckCircle2Icon, Share2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShareNoteDialog } from "@/components/notes/ShareNoteDialog";
 import { useProfile } from "@/contexts/UserContext";
 import { type Profile } from "@/models/user";
+import { DeleteNoteDialog } from "@/components/notes/DeleteNoteDialog";
 
 const DEFAULT_NOTE: Note = {
   content: "<p></p>",
@@ -49,7 +50,7 @@ export const NoteDetailsPage = () => {
     pick(note || DEFAULT_NOTE, ["content", "title", "visibility"]),
   );
   const [saveState, setSaveState] = useState({ loading: false, afterSave: false });
-  const [openShareDialog, setOpenShareDialog] = useState(false);
+  const [openDialog, setOpenDialog] = useState<"share" | "delete" | null>(null);
   const [publicProfile, setPublicProfile] = useState<Profile | null>(null);
 
   const formGroup = useForm(def, isCreatePage ? NoteValidator.BODY.createOne : NoteValidator.BODY.updateOne);
@@ -141,7 +142,7 @@ export const NoteDetailsPage = () => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <FormLayout form={formGroup} ref={formRef} onFormSubmit={() => handleSave()}>
         <div className="flex justify-between">
-          <div className="w-2/3">
+          <div className="w-full">
             <FormLayout.input
               readOnly={isCreatePage ? false : !isOwner}
               fieldId="title"
@@ -172,15 +173,19 @@ export const NoteDetailsPage = () => {
                 </AnimatePresence>
                 {!isCreatePage && <p className="text-xs">{isOld ? "Saved" : "Unsaved"}</p>}
               </div>
-              <Button size={"sm"} variant={"outline"} onClick={() => setOpenShareDialog(true)}>
+              <Button size={"sm"} variant={"outline"} onClick={() => setOpenDialog("share")}>
                 <Share2 className="size-4.5" />
+              </Button>
+              <Button size={"sm"} variant={"delete-semi-transparent"} onClick={() => setOpenDialog("delete")}>
+                <Trash2 className="size-4.5" />
               </Button>
             </div>
           )}
         </div>
         <FormLayout.richEditor editor={editor} fieldId="content" onBlur={() => formRef.current?.requestSubmit()} ignoreError />
       </FormLayout>
-      <ShareNoteDialog note={note} onClose={() => setOpenShareDialog(false)} open={openShareDialog} onShare={(v) => handleSave({ visibility: v })} />
+      <DeleteNoteDialog onClose={() => setOpenDialog(null)} open={openDialog === "delete"} note={note} />
+      <ShareNoteDialog note={note} onClose={() => setOpenDialog(null)} open={openDialog === "share"} onShare={(v) => handleSave({ visibility: v })} />
     </motion.div>
   );
 };
