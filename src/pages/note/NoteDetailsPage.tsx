@@ -56,6 +56,11 @@ export const NoteDetailsPage = () => {
   const navigate = useNavigate();
   const editor = useEditor({ extensions: [StarterKit], content: form.content, onUpdate: ({ editor }) => updateField("content", editor.getHTML()) });
   const isOld = JSON.stringify(def) === JSON.stringify(form);
+  const saveWithDefault = (note: Note) => {
+    const clean = pick(note, ["content", "title", "visibility"]);
+    setForm(clean);
+    setDef(clean);
+  };
 
   useEffect(() => {
     (async () => {
@@ -67,9 +72,7 @@ export const NoteDetailsPage = () => {
         try {
           const note = await getOne(id);
           setNote(note);
-          const cleanNote = pick(note, ["content", "title", "visibility"]);
-          setForm(cleanNote);
-          setDef(cleanNote);
+          saveWithDefault(note);
         } catch (e) {
           toast.error(e instanceof ServerError ? e.getMessage() : "Failed to load note");
         }
@@ -77,32 +80,33 @@ export const NoteDetailsPage = () => {
     })();
   }, [note]);
 
-  useEffect(() => {
-    const note = notes.find((n) => n.id === id);
-    if (note) setNote(note);
-  }, [notes]);
-
-  const handleSave = useCallback(async () => {
-    if (!isOld) {
-      try {
-        setSaveState({ afterSave: false, loading: true });
-        if (isCreatePage) {
-          const note = await createOne(form, { skipLoading: true });
-          setDef(form);
-          navigate(`/notes/${note.id}`, { replace: true });
-        } else {
-          await updateOne(id, form, { skipLoading: true });
-          setDef(form);
+  const handleSave = useCallback(
+    async (overrides?: Partial<typeof form>) => {
+      const payload = Object.assign({}, form, overrides);
+      if (overrides ? JSON.stringify(def) !== JSON.stringify(payload) : !isOld) {
+        try {
+          setSaveState({ afterSave: false, loading: true });
+          if (isCreatePage) {
+            const note = await createOne(payload, { skipLoading: true });
+            setNote(note);
+            saveWithDefault(note);
+            navigate(`/notes/${note.id}`, { replace: true });
+          } else {
+            const note = await updateOne(id, payload, { skipLoading: true });
+            setNote(note);
+            saveWithDefault(note);
+          }
+          setSaveState({ afterSave: true, loading: false });
+          setTimeout(() => {
+            setSaveState((prev) => ({ ...prev, afterSave: false }));
+          }, 1000);
+        } catch {
+          setSaveState({ afterSave: false, loading: false });
         }
-        setSaveState({ afterSave: true, loading: false });
-        setTimeout(() => {
-          setSaveState((prev) => ({ ...prev, afterSave: false }));
-        }, 1000);
-      } catch {
-        setSaveState({ afterSave: false, loading: false });
       }
-    }
-  }, [isCreatePage, isOld, form]);
+    },
+    [isCreatePage, isOld, form],
+  );
 
   useEffect(() => {
     const saveShortcut = (e: KeyboardEvent) => {
@@ -119,7 +123,7 @@ export const NoteDetailsPage = () => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <FormLayout form={formGroup} ref={formRef} onFormSubmit={handleSave}>
+      <FormLayout form={formGroup} ref={formRef} onFormSubmit={() => handleSave()}>
         <div className="flex justify-between">
           <div className="w-2/3">
             <FormLayout.input
@@ -154,7 +158,7 @@ export const NoteDetailsPage = () => {
         </div>
         <FormLayout.richEditor editor={editor} fieldId="content" onBlur={() => formRef.current?.requestSubmit()} />
       </FormLayout>
-      <ShareNoteDialog note={note} onClose={() => setOpenShareDialog(false)} open={openShareDialog} />
+      <ShareNoteDialog note={note} onClose={() => setOpenShareDialog(false)} open={openShareDialog} onShare={(v) => handleSave({ visibility: v })} />
     </motion.div>
   );
 };

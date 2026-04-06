@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Download, Upload, Copy, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useNoteAction } from "@/contexts/NoteActionContext";
 import type { Note } from "@/models/note";
 import { Loading } from "../ui/loading";
 import { VITE_BASE_URL } from "@/config";
@@ -11,12 +10,12 @@ type ShareNoteDialogProps = {
   open: boolean;
   note: Note;
   onClose: () => void;
+  onShare: (to: Note["visibility"]) => any;
 };
 
-export const ShareNoteDialog = ({ note, onClose, open }: ShareNoteDialogProps) => {
+export const ShareNoteDialog = ({ note, onClose, open, onShare }: ShareNoteDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { updateOne } = useNoteAction();
 
   const isPublic = note.visibility === "public";
   const toggleVisibility = (v: Note["visibility"]) => (v === "public" ? "private" : "public");
@@ -25,7 +24,7 @@ export const ShareNoteDialog = ({ note, onClose, open }: ShareNoteDialogProps) =
   const toggleShare = async () => {
     try {
       setLoading(true);
-      await updateOne(note.id, { content: note.content, title: note.title, visibility: toggleVisibility(note.visibility) }, { skipLoading: true });
+      await onShare(toggleVisibility(note.visibility));
     } finally {
       setLoading(false);
     }
