@@ -47,3 +47,24 @@ type ConditionalField<T, Key extends string, ExtraKey extends string, ExtraType>
 
 /** Replaces all occurrences of substring `W` in string `S` with `R`. */
 type Replace<S extends string, F extends string, R extends string> = S extends `${infer First}${F}${infer Last}` ? `${First}${R}${Last}` : S;
+
+/** Shortcut of `T[keyof T]` */
+type ValueOf<T> = T[keyof T];
+
+/** Only one field allowed in `T` */
+type OneFieldOnly<T extends Record<string, unknown>> = {
+  [K in keyof T]: {
+    [P in K]: T[P];
+  } & {
+    [P in Exclude<keyof T, K>]?: never;
+  };
+}[keyof T];
+
+/** Required at least one of `T` */
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
+  }[Keys];
+
+/** Merge from union to intersection */
+type MergeUnion<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
