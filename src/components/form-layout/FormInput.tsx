@@ -3,8 +3,8 @@ import { PermissionInput, type PermissionInputProps } from "../ui/permission-inp
 import { TagInput, type TagInputProps } from "../ui/tag-input";
 import { useFormLayout } from "./FormLayout";
 
-type FormInputProps = { fieldId?: string } & InputProps;
-export const FormInput = ({ fieldId, ...props }: FormInputProps) => {
+type FormInputProps = { fieldId?: string; ignoreError?: boolean } & InputProps;
+export const FormInput = ({ fieldId, ignoreError, ...props }: FormInputProps) => {
   const {
     form: {
       form: [val],
@@ -17,14 +17,14 @@ export const FormInput = ({ fieldId, ...props }: FormInputProps) => {
     <Input
       value={fieldId && String(val[fieldId])}
       onValueChange={fieldId ? (val) => updateField(fieldId as any, val) : undefined}
-      error={fieldId && err[fieldId]}
+      error={!ignoreError && fieldId ? err[fieldId] : undefined}
       {...props}
     />
   );
 };
 
-export type FormTagInputProps = { fieldId?: string } & Partial<TagInputProps>;
-export const FormTagInput = ({ fieldId, ...props }: FormTagInputProps) => {
+export type FormTagInputProps = { fieldId?: string; ignoreError?: boolean } & Partial<TagInputProps>;
+export const FormTagInput = ({ fieldId, ignoreError, ...props }: FormTagInputProps) => {
   const {
     form: {
       form: [val],
@@ -37,14 +37,14 @@ export const FormTagInput = ({ fieldId, ...props }: FormTagInputProps) => {
     <TagInput
       value={fieldId ? (Array.isArray(val[fieldId]) ? val[fieldId] : []) : []}
       onChange={fieldId ? (val) => updateField(fieldId as any, val) : () => {}}
-      error={fieldId && err[fieldId]}
+      error={!ignoreError && fieldId ? err[fieldId] : undefined}
       {...props}
     />
   );
 };
 
-export type FormUnixPermissionInput = { fieldId?: string } & Partial<PermissionInputProps>;
-export const FormUnixPermissionInput = ({ fieldId, ...props }: FormUnixPermissionInput) => {
+export type FormUnixPermissionInput = { fieldId?: string; ignoreError?: boolean } & Partial<PermissionInputProps>;
+export const FormUnixPermissionInput = ({ fieldId, ignoreError, ...props }: FormUnixPermissionInput) => {
   const {
     form: {
       form: [val],
@@ -57,7 +57,7 @@ export const FormUnixPermissionInput = ({ fieldId, ...props }: FormUnixPermissio
     <PermissionInput
       value={fieldId ? (Array.isArray(val[fieldId]) ? val[fieldId] : []) : []}
       onChange={fieldId ? (val) => updateField(fieldId as any, val) : () => {}}
-      error={fieldId && err[fieldId]}
+      error={!ignoreError && fieldId ? err[fieldId] : undefined}
       {...props}
     />
   );

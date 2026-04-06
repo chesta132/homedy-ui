@@ -2,9 +2,9 @@ import { Switch, type SwitchProps } from "../ui/switch";
 import { FormFieldError } from "./FormError";
 import { useFormLayout } from "./FormLayout";
 
-export type FormToggleProps = SwitchProps & { fieldId?: string; boolTransform?: { true: any; false: any } };
+export type FormToggleProps = SwitchProps & { fieldId?: string; boolTransform?: { true: any; false: any }; ignoreError?: boolean };
 
-export const FormToggle = ({ fieldId, boolTransform, ...props }: FormToggleProps) => {
+export const FormToggle = ({ fieldId, boolTransform, ignoreError, ...props }: FormToggleProps) => {
   const {
     form: {
       form: [val],
@@ -21,7 +21,7 @@ export const FormToggle = ({ fieldId, boolTransform, ...props }: FormToggleProps
         onCheckedChange={fieldId ? (val) => updateField(fieldId as any, val ? bool.true : bool.false) : undefined}
         {...props}
       />
-      <FormFieldError fieldId={fieldId} />
+      <FormFieldError fieldId={fieldId} ignoreError={ignoreError} />
     </div>
   );
 };

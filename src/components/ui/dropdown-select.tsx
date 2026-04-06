@@ -5,7 +5,7 @@ import { Select as SelectPrimitive } from "radix-ui";
 
 type StringOrNode = string | React.ReactNode;
 
-type FormSelectProps = {
+export type SelectProps = {
   placeholder?: StringOrNode;
   values: ({ label: StringOrNode } & SelectPrimitive.SelectItemProps & React.RefAttributes<HTMLDivElement>)[] | string[];
   onValueChange?: (value: string) => void;
@@ -30,7 +30,7 @@ export const DropdownSelect = ({
   error,
   errorProps,
   ...props
-}: FormSelectProps) => {
+}: SelectProps) => {
   return (
     <div className={cn("relative", className)} {...props}>
       <Select {...selectProps}>

@@ -2,9 +2,9 @@ import { SingleDatePicker, type SingleDatePickerProps } from "../ui/datepicker";
 import { useFormLayout } from "./FormLayout";
 import dayjs from "dayjs";
 
-type FormSingleDatePickerProps = { fieldId?: string } & SingleDatePickerProps;
+type FormSingleDatePickerProps = { fieldId?: string; ignoreError?: boolean } & SingleDatePickerProps;
 
-export const FormSingleDatePicker = ({ fieldId, ...rest }: FormSingleDatePickerProps) => {
+export const FormSingleDatePicker = ({ fieldId, ignoreError,...rest }: FormSingleDatePickerProps) => {
   const {
     form: {
       form: [val],
@@ -19,7 +19,7 @@ export const FormSingleDatePicker = ({ fieldId, ...rest }: FormSingleDatePickerP
     <SingleDatePicker
       date={date || undefined}
       error={fieldId && err[fieldId]}
-      onDateChange={fieldId ? (d) => updateField(fieldId as any, dayjs(d)) : undefined}
+      onDateChange={!ignoreError && fieldId ? (d) => updateField(fieldId as any, dayjs(d)) : undefined}
       {...rest}
     />
   );

@@ -21,7 +21,7 @@ import { useProfile } from "@/contexts/UserContext";
 import { type Profile } from "@/models/user";
 
 const DEFAULT_NOTE: Note = {
-  content: "",
+  content: "<p></p>",
   createdAt: new Date(),
   deletedAt: null,
   id: "",

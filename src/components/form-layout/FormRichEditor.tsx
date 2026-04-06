@@ -3,9 +3,9 @@ import { RichEditor, type RichEditorProps } from "../rich-editor/rich-editor";
 import { FormFieldError } from "./FormError";
 import { useFormLayout } from "./FormLayout";
 
-export type FormRichEditorProps = RichEditorProps & { fieldId?: string };
+export type FormRichEditorProps = RichEditorProps & { fieldId?: string; ignoreError?: boolean };
 /** apply on update to editor */
-export const FormRichEditor = ({ fieldId, ...props }: FormRichEditorProps) => {
+export const FormRichEditor = ({ fieldId, ignoreError, ...props }: FormRichEditorProps) => {
   const {
     form: {
       form: [val],
@@ -27,7 +27,7 @@ export const FormRichEditor = ({ fieldId, ...props }: FormRichEditorProps) => {
   return (
     <div>
       <RichEditor {...props} />
-      <FormFieldError fieldId={fieldId} />
+      <FormFieldError fieldId={fieldId} ignoreError={ignoreError} />
     </div>
   );
 };
