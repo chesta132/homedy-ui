@@ -19,14 +19,18 @@ export function Toaster() {
   );
 }
 
-export const toastError = (err: unknown, { fallback = "An error occured" } = {}) => {
+export const toastError = (err: unknown, { fallback = "An error occured", unmatchSilent = false } = {}) => {
+  const unMatch = (err: unknown) => {
+    if (unmatchSilent) return err;
+    else throw err;
+  };
   if (err instanceof ServerError) {
     fallback = err.getMessage();
     // should be handled with useForm
-    if (fallback.toLowerCase() === "invalid payload") throw err;
+    if (fallback.toLowerCase() === "invalid payload") return unMatch(err);
   }
   // should be handled with useForm
-  if (err instanceof ZodError) throw err;
+  if (err instanceof ZodError) return unMatch(err);
   if (err instanceof Error) {
     fallback = err.message;
   }

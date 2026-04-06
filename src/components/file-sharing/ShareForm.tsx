@@ -78,7 +78,7 @@ export function ShareForm({ open, mode, onClose }: ShareFormProps) {
       }
       onClose();
     } catch (err) {
-      toastError(err, { fallback: isEdit ? "Update failed" : "Failed to create share" });
+      toastError(err, { fallback: isEdit ? "Update failed" : "Failed to create share", unmatchSilent: true });
     } finally {
       setLoading(false);
     }

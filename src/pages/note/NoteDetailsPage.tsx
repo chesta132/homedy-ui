@@ -116,7 +116,7 @@ export const NoteDetailsPage = () => {
             setSaveState((prev) => ({ ...prev, afterSave: false }));
           }, 1000);
         } catch (err) {
-          toastError(err, { fallback: `Failed to ${isCreatePage ? "create" : "update"} note` });
+          toastError(err, { fallback: `Failed to ${isCreatePage ? "create" : "update"} note`, unmatchSilent: true });
           setSaveState({ afterSave: false, loading: false });
         }
       }
