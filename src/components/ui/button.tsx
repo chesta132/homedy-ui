@@ -13,6 +13,7 @@ const buttonVariants = cva(
         ghost: "text-subtle hover:bg-elevated hover:text-fg",
         destructive: "bg-transparent text-red-400 hover:bg-red-950/50 hover:text-red-400 border border-transparent",
         delete: "border bg-background shadow-xs dark:bg-input/30 dark:border-input hover:bg-red-600 dark:hover:bg-red-600 hover:text-white",
+        "delete-semi-transparent": "bg-red-950/80 text-red-400 hover:bg-red-900/80 border border-red-900/50",
       },
       size: {
         default: "h-9 px-4 py-2",
