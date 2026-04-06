@@ -1,3 +1,4 @@
+import { toastError } from "@/components/ui/toaster";
 import { ConvertValidator } from "@/models/validator/convert";
 import { runBatch, runSingle, type FileEntry } from "@/utils/convert/convert";
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
@@ -46,6 +47,7 @@ export const ConvertProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const handleSingle = useCallback(async () => {
+    // error handled inside
     await runSingle(entries, setEntryLoading);
   }, [entries, setEntryLoading]);
 
@@ -53,6 +55,8 @@ export const ConvertProvider = ({ children }: { children: ReactNode }) => {
     setBatchLoading(true);
     try {
       await runBatch(entries);
+    } catch (err) {
+      toastError(err, { fallback: `Failed to convert ${entries.length} file(s)` });
     } finally {
       setBatchLoading(false);
     }

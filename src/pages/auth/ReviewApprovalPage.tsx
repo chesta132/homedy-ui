@@ -48,7 +48,7 @@ export function SignUpReviewApprovalPage() {
       setUser(res.data);
       setState(isApproveAction ? "approved" : "denied");
     } catch (err) {
-      const message = err instanceof ServerError ? err.getMessage() : "Something went wrong";
+      const message = err instanceof ServerError ? err.getMessage() : `Failed to ${isApproveAction ? "approve" : "deny"} requested approval`;
       setErrorMessage(message);
       setState("error");
       toast.error(message);

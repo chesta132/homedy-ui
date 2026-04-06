@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { useNoteAction } from "@/contexts/NoteActionContext";
 import type { Note } from "@/models/note";
+import { toastError } from "../ui/toaster";
 
 interface DeleteNoteDialogProps {
   open: boolean;
@@ -21,6 +22,8 @@ export function DeleteNoteDialog({ open, note, onClose }: DeleteNoteDialogProps)
     try {
       await deleteOne(note, { skipLoading: true });
       onClose();
+    } catch (err) {
+      toastError(err, { fallback: "Failed to delete note" });
     } finally {
       setLoading(false);
     }

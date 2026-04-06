@@ -5,14 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import type { Share } from "@/models/samba";
-import { toast } from "@/components/ui/toaster";
+import { toast, toastError } from "@/components/ui/toaster";
 import { api } from "@/utils/server/apiClient";
 import { useForm } from "@/hooks/useForm";
 import { SambaValidator } from "@/models/validator/samba";
 import { FormLayout } from "../form-layout/FormLayout";
 import { useFileSharing } from "@/contexts/FileSharingContext";
-import { ServerError } from "@/utils/server/serverResponse";
-import { capital } from "@/utils/manipulate/string";
 
 type Mode = { type: "create" } | { type: "edit"; name: string; share: Share };
 
@@ -80,8 +78,7 @@ export function ShareForm({ open, mode, onClose }: ShareFormProps) {
       }
       onClose();
     } catch (err) {
-      const msg = err instanceof ServerError ? capital(err.getMessage()) : "Something went wrong";
-      toast.error(msg);
+      toastError(err, { fallback: isEdit ? "Update failed" : "Failed to create share" });
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import { Loading } from "@/components/ui/loading";
-import { toast } from "@/components/ui/toaster";
+import { toastError } from "@/components/ui/toaster";
 import { useNoteAction } from "@/contexts/NoteActionContext";
 import { useNote } from "@/contexts/NoteContext";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -87,7 +87,7 @@ export const NoteDetailsPage = () => {
             setPublicProfile(await getProfile(note.userId));
           }
         } catch (e) {
-          toast.error(e instanceof ServerError ? e.getMessage() : "Failed to load note");
+          toastError(e, { fallback: "Failed to load note" });
           if (e instanceof ServerError && e.getCode() === "FORBIDDEN") navigate("/notes");
         }
       }
@@ -115,7 +115,8 @@ export const NoteDetailsPage = () => {
           setTimeout(() => {
             setSaveState((prev) => ({ ...prev, afterSave: false }));
           }, 1000);
-        } catch {
+        } catch (err) {
+          toastError(err, { fallback: `Failed to ${isCreatePage ? "create" : "update"} note` });
           setSaveState({ afterSave: false, loading: false });
         }
       }

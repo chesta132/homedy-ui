@@ -1,3 +1,4 @@
+import { ServerError } from "@/utils/server/serverResponse";
 import { Toaster as SonnerToaster, toast } from "sonner";
 
 export { toast };
@@ -16,3 +17,6 @@ export function Toaster() {
     />
   );
 }
+
+export const toastError = (err: unknown, { fallback = "An error occured" } = {}) =>
+  toast.error(err instanceof ServerError ? err.getMessage() : fallback);

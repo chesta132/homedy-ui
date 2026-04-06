@@ -1,4 +1,4 @@
-import { toast } from "@/components/ui/toaster";
+import { toast, toastError } from "@/components/ui/toaster";
 import { api } from "../server/apiClient";
 import { objToFormData } from "../manipulate/object";
 import type { ConvertPayload } from "@/models/convert";
@@ -70,8 +70,8 @@ export async function runSingle(entries: FileEntry[], setLoading: (id: string, v
     try {
       const filename = await convertSingle(entry);
       toast.success(`Converted: ${filename}`);
-    } catch {
-      toast.error(`Failed to convert ${entry.file.name}`);
+    } catch (err) {
+      toastError(err, { fallback: `Failed to convert ${entry.file.name}` });
     } finally {
       setLoading(entry.id, false);
     }
@@ -88,10 +88,6 @@ export async function runBatch(entries: FileEntry[]): Promise<void> {
     return;
   }
 
-  try {
-    const filename = await convertMultiple(valid);
-    toast.success(`Downloaded: ${filename}`);
-  } catch {
-    toast.error("Batch conversion failed");
-  }
+  const filename = await convertMultiple(valid);
+  toast.success(`Downloaded: ${filename}`);
 }

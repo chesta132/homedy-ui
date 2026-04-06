@@ -3,13 +3,11 @@ import { Plus, Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppSecretModal } from "@/components/ui/app-secret-modal";
-import { toast } from "@/components/ui/toaster";
+import { toast, toastError } from "@/components/ui/toaster";
 import type { ShareMap } from "@/models/samba";
 import { motion, AnimatePresence } from "motion/react";
 import { useAppSecret } from "@/hooks/useAppSecret";
 import { api } from "@/utils/server/apiClient";
-import { ServerError } from "@/utils/server/serverResponse";
-import { capital } from "@/utils/manipulate/string";
 
 type ConfigRow = { key: string; value: string };
 
@@ -39,7 +37,7 @@ export function SambaConfigEditor() {
       setOriginal(parsed);
       setLoaded(true);
     } catch (err) {
-      toast.error(err instanceof ServerError ? capital(err.getMessage()) : "Failed to load global config");
+      toastError(err, { fallback: "Failed to load global config" });
     } finally {
       setLoading(false);
     }
@@ -81,7 +79,7 @@ export function SambaConfigEditor() {
       setOriginal(toConfigRows(config.data));
       toast.success("Global config saved");
     } catch (err) {
-      toast.error(err instanceof ServerError ? capital(err.getMessage()) : "Failed to save config");
+      toastError(err, { fallback: "Failed to save config" });
     } finally {
       setSaving(false);
     }

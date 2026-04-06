@@ -2,10 +2,8 @@ import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toaster";
+import { toast, toastError } from "@/components/ui/toaster";
 import { api } from "@/utils/server/apiClient";
-import { capital } from "@/utils/manipulate/string";
-import { ServerError } from "@/utils/server/serverResponse";
 import { useFileSharing } from "@/contexts/FileSharingContext";
 
 interface DeleteShareDialogProps {
@@ -29,7 +27,7 @@ export function DeleteShareDialog({ open, shareName, onClose }: DeleteShareDialo
       toast.success(`Share "${shareName}" deleted`);
       onClose();
     } catch (err) {
-      toast.error(err instanceof ServerError ? capital(err.getMessage()) : "Failed to delete share");
+      toastError(err, { fallback: "Failed to delete share" });
     } finally {
       setLoading(false);
     }

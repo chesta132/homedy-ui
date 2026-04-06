@@ -1,3 +1,4 @@
+import { toastError } from "@/components/ui/toaster";
 import { useAppSecret } from "@/hooks/useAppSecret";
 import type { Shares } from "@/models/samba";
 import { api } from "@/utils/server/apiClient";
@@ -34,8 +35,8 @@ export const FileSharingProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await api.get("/samba");
       setShares(res.data);
-    } catch {
-      toast.error("Failed to load shares");
+    } catch (err) {
+      toastError(err, { fallback: "Failed to load shares" });
     } finally {
       setLoading(false);
     }
@@ -54,10 +55,8 @@ export const FileSharingProvider = ({ children }: { children: ReactNode }) => {
       if (!secret) return;
       await api.post("/samba/backup", { header: { "X-APP-SECRET": secret } });
       toast.success("Backup completed successfully");
-    } catch (err: any) {
-      if (err?.status === 403) {
-        toast.error("Invalid app secret");
-      } else toast.error("Backup failed");
+    } catch (err) {
+      toastError(err, { fallback: "Backup failed" });
     } finally {
       setBackingUp(false);
     }
@@ -71,10 +70,8 @@ export const FileSharingProvider = ({ children }: { children: ReactNode }) => {
       const res = await api.post("/samba/restore", { header: { "X-APP-SECRET": secret } });
       setShares(res.data ?? {});
       toast.success("Restore completed successfully");
-    } catch (err: any) {
-      if (err?.status === 403) {
-        toast.error("Invalid app secret");
-      } else toast.error("Restore failed");
+    } catch (err) {
+      toastError(err, { fallback: "Restore failed" });
     } finally {
       setRestoring(false);
     }

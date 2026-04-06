@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { Note } from "@/models/note";
 import { Loading } from "../ui/loading";
 import { VITE_BASE_URL } from "@/config";
+import { toastError } from "../ui/toaster";
 
 type ShareNoteDialogProps = {
   open: boolean;
@@ -25,6 +26,8 @@ export const ShareNoteDialog = ({ note, onClose, open, onShare }: ShareNoteDialo
     try {
       setLoading(true);
       await onShare(toggleVisibility(note.visibility));
+    } catch (err) {
+      toastError(err, { fallback: `Failed to set visibility to ${toggleVisibility(note.visibility)}` });
     } finally {
       setLoading(false);
     }
