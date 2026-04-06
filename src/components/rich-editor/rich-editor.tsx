@@ -8,15 +8,15 @@ export const RichEditor = ({ editor, className, ...props }: RichEditorProps) => 
   if (!editor) return null;
 
   return (
-    <div className={cn("flex flex-col overflow-hidden rounded-lg border border-border bg-card", className)} {...props}>
+    <div className={cn("flex flex-col lg:flex-row h-[calc(100dvh-10.5rem)]", className)} {...props}>
       <MenuBar editor={editor} />
       <EditorContent
         editor={editor}
         className={`
           tiptap-content
           cursor-text
-          min-h-48 flex-1 px-4 py-3
-          text-sm text-fg
+          flex-1 px-4 py-3 overflow-y-auto
+          text-sm text-fg bg-card
           [&_.tiptap]:outline-none
           [&_.tiptap_p]:leading-relaxed
           [&_.tiptap_h1]:mb-2 [&_.tiptap_h1]:text-xl [&_.tiptap_h1]:font-semibold [&_.tiptap_h1]:tracking-tight

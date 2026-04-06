@@ -29,6 +29,14 @@
     background: var(--color-border-hover);
   }
 
+  .scrollbar-left {
+    direction: rtl;
+  }
+
+  .scrollbar-left > * {
+    direction: ltr;
+  }
+
   ::selection {
     background-color: var(--color-fg);
     color: var(--color-base);
