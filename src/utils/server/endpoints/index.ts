@@ -4,6 +4,7 @@ import { deepMergeAll } from "@/utils/manipulate/object";
 import { SambaEndpoints } from "./samba";
 import { ConvertEndpoints } from "./convert";
 import { NoteEndpoints } from "./note";
+import { UserEndpoints } from "./user";
 
 export type Method = "POST" | "GET" | "PUT" | "PATCH" | "DELETE";
 export type Response = ZodType;
@@ -30,6 +31,7 @@ export abstract class Endpoints {
     SambaEndpoints.PATHS,
     ConvertEndpoints.PATHS,
     NoteEndpoints.PATHS,
+    UserEndpoints.PATHS,
   ) satisfies EndpointPaths;
 
   static generatePath<B extends Body, R extends Response, Q extends Query, P extends Param, H extends Header>(

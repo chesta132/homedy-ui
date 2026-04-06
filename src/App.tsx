@@ -19,51 +19,54 @@ import { NoteProvider } from "./contexts/NoteContext";
 import { NoteListPage } from "./pages/note/NoteListPage";
 import { NoteActionProvider } from "./contexts/NoteActionContext";
 import { NoteDetailsPage } from "./pages/note/NoteDetailsPage";
+import { ProfileProvider } from "./contexts/UserContext";
 
 function App() {
   return (
     <BrowserRouter>
       <ErrorProvider>
         <AuthProvider>
-          <FileSharingProvider>
-            <ConvertProvider>
-              <NoteProvider>
-                <NoteActionProvider>
-                  <Routes>
-                    {/* guest only */}
-                    <Route element={<UnauthGuard authRedirect="/" />}>
-                      {/* auth */}
-                      <Route path="/signup" element={<SignUpPage />} />
-                      <Route path="/signin" element={<SignInPage />} />
-                    </Route>
-
-                    {/* protected */}
-                    <Route element={<AuthGuard unauthRedirect="/signin" />}>
-                      {/* dashboard */}
-                      <Route element={<DashboardLayout />}>
-                        <Route path="/" index element={<DashboardPage />} />
-                        <Route path="/file-sharing" element={<FileSharingPage />} />
-                        <Route path="/terminal" element={<TerminalPage />} />
-                        <Route path="/convert" element={<ConvertPage />} />
-                        <Route path="/notes" element={<NoteListPage />} />
-                        <Route path="/notes/create" element={<NoteDetailsPage />} />
-                        <Route path="/notes/:id" element={<NoteDetailsPage />} />
-
-                        {/* TODO: add TrashLayout */}
-                        <Route path="/trash/notes" element={<NoteListPage trashPage />} />
+          <ProfileProvider>
+            <FileSharingProvider>
+              <ConvertProvider>
+                <NoteProvider>
+                  <NoteActionProvider>
+                    <Routes>
+                      {/* guest only */}
+                      <Route element={<UnauthGuard authRedirect="/" />}>
+                        {/* auth */}
+                        <Route path="/signup" element={<SignUpPage />} />
+                        <Route path="/signin" element={<SignInPage />} />
                       </Route>
-                    </Route>
 
-                    <Route path="/signup/approval-status" element={<SignUpApprovalPage />} />
-                    <Route path="/signup/review-approval" element={<SignUpReviewApprovalPage />} />
+                      {/* protected */}
+                      <Route element={<AuthGuard unauthRedirect="/signin" />}>
+                        {/* dashboard */}
+                        <Route element={<DashboardLayout />}>
+                          <Route path="/" index element={<DashboardPage />} />
+                          <Route path="/file-sharing" element={<FileSharingPage />} />
+                          <Route path="/terminal" element={<TerminalPage />} />
+                          <Route path="/convert" element={<ConvertPage />} />
+                          <Route path="/notes" element={<NoteListPage />} />
+                          <Route path="/notes/create" element={<NoteDetailsPage />} />
+                          <Route path="/notes/:id" element={<NoteDetailsPage />} />
 
-                    {/* TODO: change to not found page */}
-                    <Route path="*" element={<Navigate to={"/"} />} />
-                  </Routes>
-                </NoteActionProvider>
-              </NoteProvider>
-            </ConvertProvider>
-          </FileSharingProvider>
+                          {/* TODO: add TrashLayout */}
+                          <Route path="/trash/notes" element={<NoteListPage trashPage />} />
+                        </Route>
+                      </Route>
+
+                      <Route path="/signup/approval-status" element={<SignUpApprovalPage />} />
+                      <Route path="/signup/review-approval" element={<SignUpReviewApprovalPage />} />
+
+                      {/* TODO: change to not found page */}
+                      <Route path="*" element={<Navigate to={"/"} />} />
+                    </Routes>
+                  </NoteActionProvider>
+                </NoteProvider>
+              </ConvertProvider>
+            </FileSharingProvider>
+          </ProfileProvider>
         </AuthProvider>
       </ErrorProvider>
       <Toaster />
