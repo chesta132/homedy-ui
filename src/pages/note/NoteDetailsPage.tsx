@@ -17,6 +17,8 @@ import { ServerError } from "@/utils/server/serverResponse";
 import { CheckCircle2Icon, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShareNoteDialog } from "@/components/notes/ShareNoteDialog";
+import { useProfile } from "@/contexts/UserContext";
+import { type Profile } from "@/models/user";
 
 const DEFAULT_NOTE: Note = {
   content: "",
@@ -35,6 +37,7 @@ export const NoteDetailsPage = () => {
   const formRef = useRef<HTMLFormElement>(null);
 
   const { user } = useAuth();
+  const { getProfile } = useProfile();
   const {
     exist: { notes },
     loading,
@@ -47,6 +50,7 @@ export const NoteDetailsPage = () => {
   );
   const [saveState, setSaveState] = useState({ loading: false, afterSave: false });
   const [openShareDialog, setOpenShareDialog] = useState(false);
+  const [publicProfile, setPublicProfile] = useState<Profile | null>(null);
 
   const formGroup = useForm(def, isCreatePage ? NoteValidator.BODY.createOne : NoteValidator.BODY.updateOne);
   const {
@@ -54,13 +58,19 @@ export const NoteDetailsPage = () => {
     updateField,
   } = formGroup;
   const navigate = useNavigate();
-  const editor = useEditor({ extensions: [StarterKit], content: form.content, onUpdate: ({ editor }) => updateField("content", editor.getHTML()) });
-  const isOld = JSON.stringify(def) === JSON.stringify(form);
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: form.content,
+    onUpdate: ({ editor }) => updateField("content", editor.getHTML()),
+    editable: isCreatePage || isOwner,
+  });
   const saveWithDefault = (note: Note) => {
     const clean = pick(note, ["content", "title", "visibility"]);
     setForm(clean);
     setDef(clean);
   };
+
+  const isOld = JSON.stringify(def) === JSON.stringify(form);
 
   useEffect(() => {
     (async () => {
@@ -73,8 +83,12 @@ export const NoteDetailsPage = () => {
           const note = await getOne(id);
           setNote(note);
           saveWithDefault(note);
+          if (note.userId !== user?.id) {
+            setPublicProfile(await getProfile(note.userId));
+          }
         } catch (e) {
           toast.error(e instanceof ServerError ? e.getMessage() : "Failed to load note");
+          if (e instanceof ServerError && e.getCode() === "FORBIDDEN") navigate("/notes");
         }
       }
     })();
@@ -82,6 +96,7 @@ export const NoteDetailsPage = () => {
 
   const handleSave = useCallback(
     async (overrides?: Partial<typeof form>) => {
+      if (!isCreatePage && !isOwner) return;
       const payload = Object.assign({}, form, overrides);
       if (overrides ? JSON.stringify(def) !== JSON.stringify(payload) : !isOld) {
         try {
@@ -105,7 +120,7 @@ export const NoteDetailsPage = () => {
         }
       }
     },
-    [isCreatePage, isOld, form],
+    [isCreatePage, isOld, form, isOwner],
   );
 
   useEffect(() => {
@@ -136,25 +151,30 @@ export const NoteDetailsPage = () => {
             />
             <div className="flex gap-2 mx-3 text-xs text-dim">
               <p>{new Date(note.updatedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>|
-              <p>{editor.getText().replaceAll("\n", "").length} charachters</p>|<p>{form.visibility === "public" ? "Shared" : "Private"}</p>
+              <p>{editor.getText().replaceAll("\n", "").length} charachters</p>|
+              <p>
+                {form.visibility === "public" ? (isOwner ? "Shared" : `Author: ${publicProfile ? publicProfile.username : "unknown"}`) : "Private"}
+              </p>
             </div>
           </div>
-          <div className="flex gap-2 items-center">
-            <div className="flex gap-1 items-center text-subtle cursor-default">
-              {saveState.loading && <Loading />}
-              <AnimatePresence>
-                {saveState.afterSave && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                    <CheckCircle2Icon className="size-3.5" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {!isCreatePage && <p className="text-xs">{isOld ? "Saved" : "Unsaved"}</p>}
+          {isOwner && (
+            <div className="flex gap-2 items-center">
+              <div className="flex gap-1 items-center text-subtle cursor-default">
+                {saveState.loading && <Loading />}
+                <AnimatePresence>
+                  {saveState.afterSave && (
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                      <CheckCircle2Icon className="size-3.5" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {!isCreatePage && <p className="text-xs">{isOld ? "Saved" : "Unsaved"}</p>}
+              </div>
+              <Button size={"sm"} variant={"outline"} onClick={() => setOpenShareDialog(true)}>
+                <Share2 className="size-4.5" />
+              </Button>
             </div>
-            <Button size={"sm"} variant={"outline"} onClick={() => setOpenShareDialog(true)}>
-              <Share2 className="size-4.5" />
-            </Button>
-          </div>
+          )}
         </div>
         <FormLayout.richEditor editor={editor} fieldId="content" onBlur={() => formRef.current?.requestSubmit()} />
       </FormLayout>

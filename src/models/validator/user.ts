@@ -24,5 +24,19 @@ export abstract class UserValidator {
       status: z.enum(["active", "pending"], "Invalid status"),
       ...BaseValidator.baseRecyclable.shape,
     }),
+
+    profile: z.object({
+      username: z.string().regex(this.REGEX.username, "Invalid username"),
+      email: z.email("Invalid email format"),
+      ...BaseValidator.baseModel.shape,
+    }),
+  };
+
+  static readonly PARAM = {
+    userId: z.object({ id: z.string() }),
+  };
+
+  static readonly RESPONSE = {
+    getUser: this.MODEL.profile,
   };
 }

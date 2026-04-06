@@ -6,13 +6,15 @@ export type RichEditorProps = React.ComponentProps<"div"> & { editor: Editor | n
 
 export const RichEditor = ({ editor, className, ...props }: RichEditorProps) => {
   if (!editor) return null;
+  const editable = editor.options.editable;
 
   return (
     <div className={cn("flex flex-col lg:flex-row h-[calc(100dvh-10.5rem)]", className)} {...props}>
-      <MenuBar editor={editor} />
+      {editable && <MenuBar editor={editor} />}
       <EditorContent
         editor={editor}
-        className={`
+        className={cn(
+          `
           tiptap-content
           cursor-text
           flex-1 px-4 py-3 overflow-y-auto
@@ -34,8 +36,10 @@ export const RichEditor = ({ editor, className, ...props }: RichEditorProps) => 
           [&_.tiptap_em]:text-subtle
           [&_.tiptap_s]:text-dim
           [&_.tiptap_p.is-editor-empty:first-child]:before:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child]:before:float-left [&_.tiptap_p.is-editor-empty:first-child]:before:h-0 [&_.tiptap_p.is-editor-empty:first-child]:before:text-muted [&_.tiptap_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]
-        `}
-        onClick={() => !editor.isFocused && editor.chain().focus("end").run()}
+        `,
+          !editable && "cursor-default",
+        )}
+        onClick={() => editable && !editor.isFocused && editor.chain().focus("end").run()}
       />
     </div>
   );

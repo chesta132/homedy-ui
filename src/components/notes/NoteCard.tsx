@@ -1,4 +1,4 @@
-import { MoreHorizontal, Trash2, RotateCcw, Globe, Lock } from "lucide-react";
+import { MoreHorizontal, Trash2, RotateCcw, Lock, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
@@ -80,8 +80,8 @@ export const NoteCard = memo(({ note, trashMode, onDelete, onRestore }: NoteCard
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <p className="text-sm font-medium text-fg truncate">{note.title}</p>
               <Badge variant="outline" className="shrink-0 gap-1 text-2xs">
-                {isPrivate ? <Lock className="h-2.5 w-2.5" /> : <Globe className="h-2.5 w-2.5" />}
-                {isPrivate ? "Private" : "Public"}
+                {isPrivate ? <Lock className="h-2.5 w-2.5" /> : <Share2 className="h-2.5 w-2.5" />}
+                {isPrivate ? "Private" : "Shared"}
               </Badge>
             </div>
           </div>
