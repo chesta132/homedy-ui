@@ -33,18 +33,6 @@ export abstract class Endpoints {
     NoteEndpoints.PATHS,
     UserEndpoints.PATHS,
   ) satisfies EndpointPaths;
-
-  static generatePath<B extends Body, R extends Response, Q extends Query, P extends Param, H extends Header>(
-    response: R,
-    {
-      body = z.undefined() as unknown as B,
-      param = z.object().optional() as P,
-      query = z.object().optional() as Q,
-      header = z.object().optional() as H,
-    } = {},
-  ) {
-    return { body, response, query, param, header };
-  }
 }
 
 export type InferEndpointPath<T extends EndpointPath> = {
@@ -62,3 +50,15 @@ export type InferEndpointPaths<T extends EndpointPaths> = {
 };
 
 export type EndpointsType = InferEndpointPaths<typeof Endpoints.PATHS>;
+
+export function generatePath<B extends Body, R extends Response, Q extends Query, P extends Param, H extends Header>(
+  response: R,
+  {
+    body = z.undefined() as unknown as B,
+    param = z.object().optional() as P,
+    query = z.object().optional() as Q,
+    header = z.object().optional() as H,
+  } = {},
+) {
+  return { body, response, query, param, header };
+}
