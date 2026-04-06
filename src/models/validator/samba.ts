@@ -4,7 +4,7 @@ export abstract class SambaValidator {
   static readonly RESERVED_SHARE_NAMES = ["global", "printers", "print$", "config", "backup", "restore"];
 
   private static readonly TEMPLATE = {
-    shareName: z.string().refine((name) => !this.RESERVED_SHARE_NAMES.includes(name), "Reserved share name"),
+    shareName: z.string().refine((name) => !this.RESERVED_SHARE_NAMES.includes(name), "Reserved share name").min(1, "Name is required"),
     sambaBool: z.enum(["yes", "no"]),
     absPath: z.string().regex(/^(\/[^/ ]*)+\/?$/, "Invalid absolute path"),
   };
