@@ -1,5 +1,6 @@
 import { ServerError } from "@/utils/server/serverResponse";
 import { Toaster as SonnerToaster, toast } from "sonner";
+import { ZodError } from "zod";
 
 export { toast };
 
@@ -18,5 +19,17 @@ export function Toaster() {
   );
 }
 
-export const toastError = (err: unknown, { fallback = "An error occured" } = {}) =>
-  toast.error(err instanceof ServerError ? err.getMessage() : fallback);
+export const toastError = (err: unknown, { fallback = "An error occured" } = {}) => {
+  if (err instanceof ServerError) {
+    fallback = err.getMessage();
+    // should be handled with useForm
+    if (fallback.toLowerCase() === "invalid payload") throw err;
+  }
+  // should be handled with useForm
+  if (err instanceof ZodError) throw err;
+  if (err instanceof Error) {
+    fallback = err.message;
+  }
+
+  toast.error(fallback);
+};
