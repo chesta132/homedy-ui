@@ -15,7 +15,12 @@ export const FormRichEditor = ({ fieldId, ...props }: FormRichEditorProps) => {
   useEffect(() => {
     if (fieldId) {
       const { editor } = props;
-      editor?.commands.setContent(String(val[fieldId]));
+      const current = editor?.getHTML();
+      const next = String(val[fieldId]);
+
+      if (current !== next) {
+        editor?.commands.setContent(next, { emitUpdate: false });
+      }
     }
   }, [fieldId, val[fieldId || ""]]);
 
