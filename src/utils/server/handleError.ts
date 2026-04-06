@@ -1,6 +1,7 @@
 import type { StateErrorServer } from "@/types/server";
 import { ServerError } from "./serverResponse";
 import { capital } from "../manipulate/string";
+import { flattenError, ZodError } from "zod";
 
 /**
  * Maps any caught error to the global error state.
@@ -34,6 +35,10 @@ export const handleFormError = <T extends Record<string, string>>(
       setFormError((prev) => ({ ...prev, ...formattedFields }));
       return;
     }
+  }
+  if (err instanceof ZodError) {
+    setFormError((prev) => ({ ...prev, ...flattenError(err).fieldErrors }));
+    return;
   }
   handleError(err, setError);
 };

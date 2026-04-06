@@ -5,13 +5,15 @@ import { UserValidator } from "./user";
 export abstract class NoteValidator {
   private static readonly TEMPLATE = {
     visibility: z.enum(["public", "private"], "Invalid enum, must be 'public' or 'private'"),
+    title: z.string().min(1, "Title is required"),
+    content: z.string().min(1, "Content is required"),
   };
 
   static readonly MODEL = {
     note: z.object({
       ...BaseValidator.baseRecyclable.shape,
-      title: z.string(),
-      content: z.string(),
+      title: this.TEMPLATE.title,
+      content: this.TEMPLATE.content,
       visibility: this.TEMPLATE.visibility,
       userId: UserValidator.MODEL.user.shape.id,
       user: UserValidator.MODEL.user.optional(),
@@ -19,11 +21,11 @@ export abstract class NoteValidator {
   };
 
   static readonly BODY = {
-    createOne: z.object({ title: z.string(), content: z.string(), visibility: this.TEMPLATE.visibility }),
+    createOne: z.object({ title: this.TEMPLATE.title, content: this.TEMPLATE.content, visibility: this.TEMPLATE.visibility }),
     updateOne: z.object({
       // optional fields set non optional here for simplify
-      title: z.string(),
-      content: z.string(),
+      title: this.TEMPLATE.title,
+      content: this.TEMPLATE.content,
       visibility: this.TEMPLATE.visibility,
     }),
     deleteMany: z.object({
